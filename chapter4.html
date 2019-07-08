@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head lang="ko">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>뉴럴 네트워크와 딥러닝</title>
+
+    <link href="assets/style.css" rel="stylesheet">
+
+    <!-- mathjax -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+    </script>
+    
+    <!-- jQuery -->
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </head>
+    
+  <body>
+    
+    <div class="header">
+      <h1>뉴럴 네트워크와 딥러닝</h1>
+      <h3>Original Edition: <a href="http://neuralnetworksanddeeplearning.com/">Neural Networks and Deep Learning</a> by <a href="http://michaelnielsen.org/">Michael A. Nielsen</a></h3>
+    </div>
+    
+    <div class="topnav">
+      <a href="#">tmpLink</a>
+      <a href="#">tmpLink</a>
+      <a href="#">tmpLink</a>
+      <a href="https://github.com/sihyeon-kim/neural-networks-and-deep-learning-korean" style="float:right">
+        <img src="images/GitHub-Mark-32px.png" widthe="19" height="19">
+        &nbsp;Edit on translator's Github
+      </a>
+    </div>
+
+    
+    
+    <div class="row">
+
+      <!--
+      <div class="sidebar">
+        <a class="active" href="#home">Home</a>
+        <a href="#news">News</a>
+        <a href="#contact">Contact</a>
+        <a href="#about">About</a>
+      </div>
+      -->
+
+      <div class="sidebar">
+        <div class="card">
+          <a href="index.html">뉴럴 네트워크와 딥러닝</a>
+          <a href="aboutBook.html">&nbsp;&nbsp;&nbsp;&nbsp;이 책에 대하여</a>
+          <a href="onExercises.html">&nbsp;&nbsp;&nbsp;&nbsp;연습문제에 대하여</a>
+          <a href="chapter1.html">뉴럴 네트워크를 이용하여 손으로 쓴 숫자 인식하기</a>
+          <a href="chapter2.html">역전파 알고리즘 동작 방법</a>
+          <a href="chapter3.html">뉴럴 네트워크의 학습 방법 향상하기</a>
+          <a class="active" href="chapter4.html">모든 함수를 계산할 수 있는 뉴럴 네트워크 증명</a>
+          <a href="chapter5.html">딥 뉴럴 네트워크를 학습시키기 어려운 이유</a>
+          <a href="chapter6.html">딥러닝</a>
+          <a href="appendix.html">부록: 지능을 위한 단순한 알고리즘</a>
+          <a href="acknowledgements.html">감사의 말</a>
+          <a href="faq.html">질문과 답변</a>
+        </div>
+      </div>
+
+      <div class="leftcolumn">
+        <div class="card">
+          <h1>4장</h1>
+          <p>뉴럴 네트워크와 딥러닝은 무료로 제공되는 전자책입니다. 이 책은 주로 아래의 두 가지를 다룹니다.</p>
+          <ul>
+              <li>뉴럴 네트워크: 뉴럴 네트워크는 생물에 영감을 받은 프로그래밍 패러다임입니다. 뉴럴 네트워크를 통해 컴퓨터는 관찰된 데이터를 이용하여 학습하는 것이 가능해졌습니다.</li>
+              <li>딥러닝: 딥러닝은 뉴럴 네트워크를 학습시키는 강력한 기술들의 집합입니다.</li>
+          </ul>
+          <p>뉴럴 네트워크와 딥러닝은 현재 이미지 인식과 음성 인식, 자연어 처리 분야에서 많은 문제를 푸는 최고의 해결책을 제공합니다. 이 책에서 뉴럴 네트워크와 딥러닝 뒤에 숨겨진 핵심 개념들을 다룹니다.</p>
+          <p></p>
+        </div>
+      </div>
+
+      <div class="rightcolumn">
+        
+        <div class="card">
+          <h2>저자</h2>
+          <h3><a href="http://michaelnielsen.org/">Michael A. Nielsen</a></h3>
+        </div>
+
+        <div class="card">
+            <h2>역자</h2>
+            <h3>김시현</h3>
+            <p><a href="https://github.com/sihyeon-kim"><img src="images/GitHub-Mark-32px.png" alt="Github" width="17" height="17">&nbsp;sihyeon-kim</a></p>
+            <p><a href="mailto:sihyeonkim0923@gmail.com">&nbsp;sihyeonkim0923@gmail.com</a></p>
+        </div>
+
+        <div class="card">
+            <h2>참고 자료</h2>
+            <p><a href="https://twitter.com/michael_nielsen">저자(Michael A. Nielsen) 트위터</a></p>
+            <p><a href="faq.html">자주 묻는 질문</a></p>
+            <p>
+              <a href="https://github.com/mnielsen/neural-networks-and-deep-learning">
+              저자(Michael A. Nielsen) 코드 저장소</a>
+            </p>
+            <p><a href="http://www.deeplearningbook.org/">Deep Learning</a>, book by Ian Goodfellow, Yoshua Bengio, and Aaron Courville</p>
+            <p><a href="http://cognitivemedium.com/">cognitivemedium.com</a></p>
+            <p>한글 글꼴(korean fonts): <a href="https://help.naver.com/support/contents/contents.help?serviceNo=1074&categoryNo=3497">나눔 글꼴</a></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+
+      <p> 
+        In academic work,
+        please cite this book as: Michael A. Nielsen, "Neural Networks and
+        Deep Learning", Determination Press, 2015
+        
+        <br/>
+        <br/>
+        
+        This work is licensed under a 
+        <a rel="license"  href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_GB">
+          Creative Commons Attribution-NonCommercial 3.0 Unported License
+        </a>.  This means you're free to copy, share, and
+        build on this book, but not to sell it.  If you're interested in
+        commercial use, please <a href="mailto:mn@michaelnielsen.org">contact me(Michael A. Nielsen)</a>.
+      </p>
+
+      <br/>
+
+      <p>
+        학업적으로 이용 시 다음과 같이 인용해 주세요: Michael A. Nielsen, "Neural Networks and
+        Deep Learning", Determination Press, 2015
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+          <img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" />
+        </a>
+        <br />이 저작물은 
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">크리에이티브 커먼즈 저작자표시-비영리 3.0 Unported 라이선스</a>
+        에 따라 이용할 수 있습니다.
+        <br /><br />
+        상업적 이용을 원하면, <a href="mailto:mn@michaelnielsen.org">저자(Michael A. Nielsen)에게 연락을 주세요.</a>
+        <br /><br />
+        마지막 깁고 더함: 19/06/21
+      </p>
+    </div>
+
+  </body>
+
+</html>

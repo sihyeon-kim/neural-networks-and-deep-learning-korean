@@ -1,0 +1,261 @@
+/*
+#abcdef .marginnote, .marginequation {
+    display: none;
+    position: absolute;
+    left: 680px;
+    width: 260px;
+    padding: 0;
+    margin: 0;
+}
+*/
+@font-face {
+  font-family: 'NanumBarunGothic';
+  src: url('./assets/fonts/NanumBarunGothic.eot');
+  src: url('./assets/fonts/NanumBarunGothic.eot') format('embedded-opentype'),
+  url('./assets/fonts/NanumBarunGothic.woff') format('woff');
+}
+
+header, section, footer, aside, nav, main, article, figure {
+  display: block; 
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'NanumBarunGothic';
+  /*font-family: 'Arial';*/
+  padding: 10px;
+  background: #f1f1f1;
+}
+
+/* 줄 간격 */
+p {
+  line-height: 180%;
+}
+
+/* Header/Blog Title */
+.header {
+  padding: 10px;
+  text-align: center;
+  color: white;
+  background: #1C3950;
+}
+
+.header a {
+  color: white;
+}
+
+.header h1 {
+  font-size: 50px;
+}
+
+/* Style the top navigation bar */
+.topnav {
+  overflow: hidden;
+  background-color: #1C3950;
+}
+
+/* Style the topnav links */
+.topnav a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change color on hover */
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/*
+.sidebar {
+  float: left;
+  margin: 0;
+  padding: 0;
+  width: 20%;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+ 
+.sidebar a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+*/
+
+.sidebar {
+  float: left;
+  width: 20%;
+  background-color: #f1f1f1;
+  padding-right: 20px;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+ 
+.sidebar a.active {
+  background-color: #1C3950;
+  color: white;
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+
+/* Create two unequal columns that floats next to each other */
+/* Left column */
+.leftcolumn {   
+  float: left;
+  width: 60%;
+}
+
+/* Right column */
+.rightcolumn {
+  float: left;
+  width: 20%;
+  background-color: #f1f1f1;
+  padding-left: 20px;
+}
+
+/* Fake image */
+.fakeimg {
+  background-color: #aaa;
+  width: 100%;
+  padding: 20px;
+}
+
+.contentimg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Add a card effect for articles */
+.card {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/*
+.card p a {
+  color: blue;
+}
+*/
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Footer */
+.footer {
+  padding: 20px;
+  text-align: center;
+  background: #1C3950;
+  color: white;
+  margin-top: 20px;
+}
+
+.footer a {
+  color: white;
+}
+
+/* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 800px) {
+  .sidebar, .leftcolumn, .rightcolumn {   
+    width: 100%;
+    padding: 0;
+  }
+}
+
+/* Responsive layout - when the screen is less than 400px wide, make the navigation links stack on top of each other instead of next to each other */
+@media screen and (max-width: 400px) {
+  .topnav a {
+    float: none;
+    width: 100%;
+  }
+}
+
+
+/* tooltip */
+.tooltip {
+  position: relative;
+  /*display: inline-block;*/
+  display:inline;
+  color: blue;
+  border-bottom: 1px dotted blue;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  /* width: 400px; */
+  background-color: #555;
+  color: #fff;
+  /*text-align: center;*/
+  border-radius: 6px;
+  padding: 5px 5px;
+
+  /*overflow: auto;*/
+  white-space: nowrap; /* flexible size */
+  /*display: inline;*/ /* tooltip flexible size */
+
+  /* tooltip position */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  /*right: 50%;*/
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/*
+.tooltiptext {
+  position: absolute;
+  right: 0;
+}
+*/
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  /* top: 100%; */ /* tooltip arrow */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
