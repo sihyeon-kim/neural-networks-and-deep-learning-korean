@@ -15,6 +15,8 @@
   url('./assets/fonts/NanumBarunGothic.woff') format('woff');
 }
 
+sup { vertical-align: top; position: relative; top: -0.2em; }
+
 header, section, footer, aside, nav, main, article, figure {
   display: block; 
 }
@@ -28,6 +30,7 @@ body {
   /*font-family: 'Arial';*/
   padding: 10px;
   background: #f1f1f1;
+  /*background: white;*/
 }
 
 /* 줄 간격 */
@@ -134,12 +137,22 @@ p {
   width: 60%;
 }
 
+.leftcolumn a {
+  color:#2A6EA6;
+  text-decoration: none;
+}
+
 /* Right column */
 .rightcolumn {
   float: left;
   width: 20%;
   background-color: #f1f1f1;
   padding-left: 20px;
+}
+
+.rightcolumn a {
+  color:#2A6EA6;
+  text-decoration: none;
 }
 
 /* Fake image */
@@ -209,8 +222,8 @@ p {
   position: relative;
   /*display: inline-block;*/
   display:inline;
-  color: blue;
-  border-bottom: 1px dotted blue;
+  color: #2A6EA6;
+  /*border-bottom: 1px dotted blue;*/
 }
 
 .tooltip .tooltiptext {
