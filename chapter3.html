@@ -3375,8 +3375,501 @@ $\lambda$값을 조정했으면 다시 돌아가 $\eta$값 최적화를 다시 �
 
 <p>
 이 주장을 근거로 하면 온라인 러닝을 이용해야 하는 것처럼 들릴 수 있다. 
-사실 상황은 이보다 다소 복잡하다. 
+사실 상황은 이보다 다소 복잡하다.
+2장의 문제에서 미니 배치에서 <i>모든</i> 입력에 대한 경사를 계산하기 위해 반복문 대신에 행렬 테크닉을 이용할 수 있다고 이야기했다.
+사용하는 하드웨어와 선형 대수 라이브러리에 따라 예를 들어 크기가 $100$인 미니 배치에 대한 경사 계산을 더 빠르게 할 수 있다.  
+100개의 학습 데이터를 각각 돌면서 미니 배치 경사를 계산하는 것은 더 느리다.
+100배가 아니라 50배만 더 걸릴 수 있다.
 </p>
+
+<p>
+이제 처음에는 이것으 우리에게 그렇게 도움이 되는 것 같지 않다.
+미니 배치 크기 $100$일 때 가중치에 대한 학습 규칙은 다음과 같다.
+
+$$\begin{eqnarray}
+  w \rightarrow w' = w-\eta \frac{1}{100} \sum_x \nabla C_x,
+\tag{100}\end{eqnarray}$$
+
+여기서 합은 미니 배치에서 학습 데이터에 대한 값이다.
+온라인 러닝과 비교해보자.
+
+$$\begin{eqnarray}
+  w \rightarrow w' = w-\eta \nabla C_x
+\tag{101}\end{eqnarray}$$
+
+미니 배치 업데이트에 $50$배가 더 걸리지만 더 자주 업데이트하므로 온라인 러닝을 하는 것이 더 좋아 보인다.
+그러나 미니 배치를 사용하는 경우에서 학습률을 $100$배 올린다고 가정하자.
+그러면 업데이트 규칙은 다음과 같다.
+
+$$\begin{eqnarray}
+  w \rightarrow w' = w-\eta \sum_x \nabla C_x.
+\tag{102}\end{eqnarray}$$
+
+이는 학습률 $\eta$로 온라인 러닝을 100개의 개별 인스턴스로 하는 것과 같다.
+하지만 온라인 러닝의 하나의 인스턴스만 하는 것보다 단지 $50$배가 더 걸린다.
+물론 $100$개의 온라인 러닝 인스턴스가 완전히 같지는 않다.
+온라인 러닝에서 일어나는 누적 학습<sup>cumulative learning</sup>과 반대로 미니배치에서 $\nabla C_x$는 같은 가중치 세트에 대해 평가되기 때문이다.
+더 큰 미니 배치가 속도를 높인다는 사실은 의심할 여지가 없다.
+</p>
+
+<p>
+이러한 요소들을 염두해 두고 최상의 미니 배치 크기를 선택해야 한다.
+크기가 너무 작으면 빠른 하드웨어에 최적화된 좋은 행렬 라이브러리의 이점을 최대한 이용하지 못 한다.  
+크기가 너무 큭면 가중치를 충분히 자주 업데이트하지 못한다.
+학습 속도를 최대화 하는 절충 값을 고르는 것이 필요하다.
+다행히도 속도를 최대화하는 미니 배치 크기를 고르는 것은 상대적으로 다른 하이퍼 파라미터와 독립적이다.
+그래서 좋은 미니 배치 크기를 찾기 위해 하이퍼 파라미터를 최적화할 필요는 없다.
+그러므로 다른 하이퍼 파라미터에 대해 (최적일 필요는 없지만) 수용 가능한 값을 사용하고, 위에서 처럼 $\eta$로 크기를 조정해 서로 다른 미니 배치 크기를 적용해 본다.
+<i>시간</i>(여기서 시간은 세대가 아니라 실제로 흘러간 시간이다)에 대한 검증 정확도를 그래프로 그려보고 미니 배치 크기 중 어느 것이 성능 향상이 가장 빠른지 고른다.
+선택한 미니 배치 크기로 다른 하이퍼 파라미터 최적화를 진행해 나갈 수 있다.
+</p>
+
+<p>
+물론 이 책에서는 최적화를 하지 않았다.
+사실 우리가 구현한 것은 미니 배치 업데이트에 대해 가장 빠른 접근 방법이 아니다.
+거의 모든 예시에서 별다른 언급이나 설명 없이 미니 배치 크기를 $10$으로 사용했다.
+이 때문에 미니 배치 크기를 줄이면서 학습 속도를 높일 수 있었다.
+크기가 $1$보다 큰 미니 배치를 사용하는 것을 보여주기 위해 최적화를 하지 않은 부분도 있고, 예비 실험에서 속도 향상이 다소 크지 않을 것이라는 암시가 있었기 때문이기도 하다.
+하지만 실용적인 구현에서는 미니 배치를 업데이트하는 더 빠른 접근법을 이용할 것이고 전체 스피드를 최대화하기 위해 미니 배치 크기를 최적화하려는 노력을 할 것이다.
+</p>
+
+<p>
+<b>자동화 기술<sup>Automated techniques</sup>: </b>
+이러한 발견적 방법<sup>heuristics</sup>을 하이퍼 파라미터를 손으로 직접 최적화하는 것처럼 설명해오고 있다.
+손으로 최적화하는 것은 신경망이 어떻게 행동하는지에 대한 감을 잡기 위한 좋은 방법이다.
+하지만 대부분의 작업은 그 과정을 자동화햐여 이루어 진다.
+보편적인 기술은 <i>그리드 검색</i><sup>grid search</sup>이다. 
+그리드 검색은 하이퍼 파라미터 공간에서 체계적으로 그리드를 검색한다.
+James Bergstra와 Yoshua Bengio의 2012년 논문<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+Random search for hyper-parameter optimization, by James Bergstra and Yoshua Bengio (2012).
+</span></span>에서
+(쉽게 구현한 대안에 대한 제안과 함께) 그리드 검색의 성과와 한계에 관한 내용을 볼 수 있다.    
+더 정교한 많은 접근법 또한 제안되어 왔다.
+모든 방법을 여기서 언급하지 않을 거지만 특히 하이퍼 파라미터를 자동으로 최적화하는 베이지안<sup>Bayesian</sup> 접근법을 사용한 2012년 논문<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+Practical Bayesian optimization of machine learning algorithms, by Jasper Snoek, Hugo Larochelle, and Ryan Adams.
+</span></span>을 언급하고 싶다.
+논문의 코드는 <a href="https://github.com/jaberg/hyperopt">공개적으로 이용 가능</a>하며 다른 연구자이 성공적으로 사용하고 있다. 
+</p>
+
+<p>
+<b>요약: </b>
+설명한 경험 법칙을 따른다고 신경망에서 가능한 최상의 결과를 주지는 않을 것이다.
+하지만 이는 좋은 시작점이 될 것이고 더 나은 향상을 위한 기초 토대가 될 것이다.
+특히 하이퍼 파라미터를 독립적으로 다루었다.
+$\eta$에 대해 실험을 하여 적당한 값을 찾았다고 느껴 $\lambda$에 대해 최적화를 시작하면 $\eta$에 대한 최적화에 문제가 발생한 것을 발견할 것이다.
+실제로 왔다 갔다 하면서 점진적으로 좋은 값을 찾아야 한다.
+무엇보다 설명한 발견적 방법<sup>heuristics</sup>은 확실한 규칙이 아니라 어림 잡은 경험 법칙이다.
+잘 못 되고 있다는 신호를 찾아 기꺼이 다시 실험해야 한다.
+특히 네트워크의 행동을 철저히 모니터링 해야함을 의미한다.
+특히 검증 정확도를 모니터링 해야한다.
+</p>
+
+<p>
+하이퍼 파라미터 선택의 어려움은 어떻게 하이퍼 파라미터를 선택해야 하는지에 대한 구전 지식이 많은 연구 논문과 소프트웨어 프로그램에 널리 퍼져 있고 때로는 몇몇 전문가들만 이용할 수 있다는 사실 때문에 악화된다.
+어떻게 진행할지에 대한 방법을 추천하는 논문이 많이 있다.(때로는 서로 모순되는 논문도 있다)
+하지만 이 지식들을 통합하여 정제하는 특별히 유용한 논문이 몇 개 있다.
+딥 뉴럴 네트워크를 포함한 뉴럴 네트워크를 학습시키기 위해 역전파와 경사 하강을 이용하는 것에 대한 실용적인 권고 사항을 제시하는 Yoshua Bengion의 2012년 논문<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+*Practical recommendations for gradient-based training of deep architectures, by Yoshua Bengio (2012).
+</span></span>이 있다.
+Bengio는 어떻게 더 체계적으로 하이퍼 파라미터를 검색하는지에 대한 내용을 포함한 많은 이슈를 구체적으로 설명하고 있다. 
+또 다른 좋은 논문은 Yann LeCun, Leo Bottou, Genevieve Orr, Klaus-Robert Muller가 쓴 1998년 논문<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+Efficient BackProp, by Yann LeCun, Léon Bottou, Genevieve Orr and Klaus-Robert Müller (1998)
+</span></span>이다.
+두 논문은 뉴럴 네트워크에서 흔히 사용하는 많은 트릭을 모아 놓은 2012년 책<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+Neural Networks: Tricks of the Trade, edited by Grégoire Montavon, Geneviève Orr, and Klaus-Robert Müller.
+</span></span>에서 매우 유용하게 나타난다.
+이 책은 비싸지만 많은 기사는 각 저자가 온라인으로 게시한 것으로 생각되며 검색 엔진을 이용해 찾아볼 수 있다.
+</p>
+
+<P>
+기사를 읽으면서 특히 자신의 실험에 참여하면서 분명해지는 하나의 사실은 하이퍼 파라미터 최적화는 완전히 해결된 문제가 아니라는 점이다.
+성능을 향상시킬 수 있는 다른 트릭이 항상 존재한다.
+책은 절대로 끝나지 않고 단지 버려질 뿐이라는 말을 작가들 끼리 흔히 한다.
+뉴럴 네트워크 최적화에 대해서도 같은 말이 적용될 수 있다.
+하이퍼 파라미터의 공간은 너무 넓어서 절대로 최적회를 끝마칠 수 없으면 단지 네트워크를 후대에 넘겨주는 것이다.
+그래서 최적화를 빨리 할 수 있는 작업 흐름을 개발하는 것이 목표이고 더 자세한 최적화를 시도할 융통성을 남겨두어야 한다.
+</P>
+
+<p>
+하이퍼 파라미터를 설정하는 어려움 때문에 몇몇 사람들은 뉴럴 네트워크가 다른 머신 러닝 기술에 비해 많은 작업을 필요로 한다고 불평한다.
+나는 다음과 같은 종류의 불평을 많이 들어왔다.
+"잘 조율된 뉴럴 네트워크는 문제에 대해 최상을 성능을 낼 것이다.
+반면 랜덤 포레스트<sup>random forest</sup> [또는 SVM, 선호하는 다른 기술]을 시도할 수 있고 그것도 잘 동작한다.
+올바른 뉴럴 네트워크를 찾아내기 위한 시간이 없다."
+물론 실용적인 관점에서 쉽겍 적용할 수 있는 기술을 갖는 것이 좋다.
+문제를 풀어야 하고 어떤 머신 러닝이 문제를 풀 수 있는지 명확히 알지 못할 때 특히 유용하다.
+반면 최적 성능을 내야하는 것이 중요하면 더 전문적인 지식을 필요로 하는 방법들을 시도할 필요가 있을지도 모른다.
+머신 러닝이 항상 쉬웠다면 좋았을테지만 머신러닝이 쉬울 것이라는 연역적 이유는 없다.
+</p>
+
+<h2>
+다른 기술
+</h2>
+<hr>
+
+<p>
+이 장에서 배운 각각의 기술은 그 자체로도 중요하지만 또 다른 이유가 있다.
+뉴럴 네트워크에서 일어날 수 있는 몇몇 문제에 익숙해지고 그 문제를 극복할 수 있도록 분석하는 방법을 익히는 것이 더 큰 요점이다.
+이런 점에서 뉴럴 네트워크에 대해 생각하는 방법에 대해 학습하였다.
+이 장의 나머지 부분에서는 다른 기술 몇 가지를 소개하려 한다.
+이전에 다루었던 것 보다 깊이 있게 다루지는 않지만 뉴럴 네트워크에서 사용할 수 있는 기술의 다양성에 대해 느낄 수 있다.
+</p>
+
+<h2>
+확률적 경사 하강의 변형
+</h2>
+
+<p>
+확률적 경사 하강과 역전파를 이용해 MNIST 숫자 분류 문제를 잘 해결하였다.
+하지만 비용 함수를 최적화하는 다른 접근법이 많이 있고 이러한 다른 접근법이 때로는 미니 배치 확률적 경사 하강보다 성능이 뛰어나다. 
+이번 절에서는 헤시안<sup>Hessian</sup>과 모멘텀<sup>momentum</sup> 기술을 다루겠다.
+</p>
+
+<p>
+<b>헤시안 기술<sup>Hessian technique</sup>: </b>
+논의를 진행하기에 앞서 뉴럴 네트워크를 잠시 고려하지 않는 것이 도움이 될 것이다.
+대신 다수의 변수 $w = w_1, w_2, \ldots$에 대한 함수인 비용 함수 $C$, 즉 $C = C(w)$를 최소화하는 추상적인 문제를 고려할 것이다.
+테일러 정리<sup>Taylor's theorem</sup>에 의해 비용 함수는 점 $w$ 근처에서 다음과 같이 근사한다.
+
+$$\begin{eqnarray}
+  C(w+\Delta w) & = & C(w) + \sum_j \frac{\partial C}{\partial w_j} \Delta w_j
+  \nonumber \\ & & + \frac{1}{2} \sum_{jk} \Delta w_j \frac{\partial^2 C}{\partial w_j
+    \partial w_k} \Delta w_k + \ldots
+\tag{103}\end{eqnarray}$$
+
+위 식을 간략하게 나타내면 다음과 같다.
+
+$$\begin{eqnarray}
+  C(w+\Delta w) = C(w) + \nabla C \cdot \Delta w +
+  \frac{1}{2} \Delta w^T H \Delta w + \ldots,
+\tag{104}\end{eqnarray}$$
+
+여기서 $\nabla C$는 일반적인 경사 벡터<sup>gradient vector</sup>이다.
+$H$는 <i>헤시안 행렬</i><sup>Hessian matrix</sup>로 알려진 행렬이며 $jk$번째 원소는 $\partial^2 C / \partial w_j \partial w_k$이다.
+위 식에서 $\ldots$으로 나타낸 고차항을 버려서 $C$를 근사한다고 가정하자. 
+
+$$\begin{eqnarray} 
+  C(w+\Delta w) \approx C(w) + \nabla C \cdot \Delta w +
+  \frac{1}{2} \Delta w^T H \Delta w.
+\tag{105}\end{eqnarray}$$
+
+미분을 이용하면 우변에 있는 식은 다음 식을 선택하여 최소화<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+Strictly speaking, for this to be a minimum, and not merely an extremum, 
+we need to assume that the Hessian matrix is positive definite. 
+Intuitively, this means that the function C looks like a valley locally, 
+not a mountain or a saddle.
+</span></span>할 수 있음을 보일 수 있다.
+
+$$\begin{eqnarray}
+  \Delta w = -H^{-1} \nabla C.
+\tag{106}\end{eqnarray}$$
+
+식 <span class="tooltip"><b>(105)</b><span class="tooltiptext">
+$$\begin{eqnarray} 
+  C(w+\Delta w) \approx C(w) + \nabla C \cdot \Delta w +
+  \frac{1}{2} \Delta w^T H \Delta w \nonumber\end{eqnarray}$$
+</span></span>이
+비용 함수에 대한 좋은 근사식이라면 점 $w$에서 $w+\Delta w = w-H^{-1} \nabla C$로의 움직임은 비용 함수를 상당히 감소시킬 것이다.
+이는 비용을 최소화하는 가능한 알고리즘을 제시한다.
+</p>
+
+<ul>
+<li>
+시작점 $w$를 선택한다.
+</li>
+<br />
+<li>
+$w$를 새로운 점 $w' = w-H^{-1} \nabla C$으로 업데이트한다. 여기서 $w$에서 헤시안 $H$와 $\nabla C$를 계산한다.
+</li>
+<br />
+<li>
+$w'$을 새로운 점 $w{'}{'} = w'-H'^{-1} \nabla' C$으로 업데이트한다. 여기서 $w'$에서 헤시안 $H'$과 $\nabla 'C$를 계산한다.
+</li>
+<br />
+<li>
+$\ldots$
+</li>
+</ul>
+
+<p>
+실제로 <span class="tooltip"><b>(105)</b><span class="tooltiptext">
+$$\begin{eqnarray} 
+  C(w+\Delta w) \approx C(w) + \nabla C \cdot \Delta w +
+  \frac{1}{2} \Delta w^T H \Delta w \nonumber\end{eqnarray}$$
+</span></span>는
+단지 근사이며 더 작은 단계를 갖는 것이 더 낫다.
+반복해서 $w$를 $\Delta w = -\eta H^{-1} \nabla C$만큼 바꿔가면서 작은 단계를 갖는다.
+여기서 $\eta$는 <i>학습률</i><sup>learning rate</sup>이다.
+</p>
+
+<p>
+비용 함수를 최소화하는 이 방식을 <i>헤시안 기술</i><sup>Hessian technique</sup> 혹은 <i>헤시안 최적화</i><sup>Hessian Optimization</sup>라고 한다.
+헤시안 방법이 확률적 경사 하강보다 더 적은 단계로 최솟값에 수렴한다는 이런적이고 경험적인 결과가 있다.
+특히 헤시안 방법이 비용 함수에서 이차<sup>second-order</sup> 변화에 대한 정보를 통합하여 경사 하강에서 일어날 수 있는 이상한 측변을 피할 수 있다.
+게다가 헤시안을 계산하는데 사용할 수 있는 역전파 알고리즘이 있다.
+</p>
+
+<p>
+헤시안 최적화가 좋다면 왜 뉴럴 네트워크에서 이를 사용하지 않은 것일까?
+불행히도 헤시안 최적화는 원하는 속성을 많이 가지지만 한 가지 좋지 못한 속성을 갖는다.
+이 때문에 실제에 적용하기 힘들다.
+문제의 일부는 헤시안 행렬의 크기이다.
+$10^7$개의 가중치와 편향을 뉴럴 네트워크가 가진다고 가정하자.
+그러면 상응하는 헤시안 행렬은 $10^7 \times 10^7 = 10^{14}$개의 원소를 갖는다.
+이는 매우 많은 수의 원소이다!
+이것이 실제로 $H^{-1} \nabla C$ 계산을 어렵게 만든다.
+하지만 이해해도 쓸모가 없다는 의미는 아니다.
+사실 헤시안 최적화에 영감을 받은 경사 하강의 많은 변형이 존재하며 이들은 엄청 큰 행렬이 가지는 문제를 피하고 있다.
+그러한 기술 중 하나인 모멘텀 기반 경사 하강<sup>momentum-based gradient descent</sup>을 살펴보자.
+</p>
+
+<p>
+<b>모멘텀 기반 경사 하강<sup>Momentum-based gradient descent</sup>: </b>
+직관적으로 헤시안 최적화가 가지는 이점은 경사에 대한 정보 뿐만 아니라 경사가 변하는 방법에 대한 정보 또한 통합한다는 점이다.
+모멘텀 기반 경사 하강은 비슷한 직관을 가지지만 이차 도함수의 큰 행렬 문제를 피한다.
+모멘텀 기술을 이해하기 위해 계곡으로 굴러 내려가는 공이라고 생각한 경사 하강에 대한 <a href="http://neuralnetworksanddeeplearning.com/chap1.html#gradient_descent">설명</a>으로 돌아가 보자.
+경사 하강이라는 이름에도 불구하고 계곡의 바닥으로 굴러 떨어지는 공과 막연히 비슷하다고 관찰했다.
+모멘텀 기술은 경사 하강을 훨씬 더 물리적인 이해와 비슷하게 하는 두 가지 방식으로 수정한다.
+먼저 최적화 하려는 파라미터에 대한 "속도" 개념을 도입한다.
+경사는 물리적인 힘이 속도를 바꾸고 간접적으로만 위치에 영향을 주는 것처럼 "위치"를 (직접) 바꾸는 것이 아니라 속도를 바꾸면서 행동한다.
+두 번째로 모멘텀 메소드<sup>method</sup>는 속도를 점진적으로 줄이는 경향이 있는 일종의 마찰항<sup>friction term</sup>을 도입한다.
+</p>
+
+<p>
+조금 더 수학적으로 정확하게 나타내보자.
+속도 변수 $v = v_1, v_2, \ldots$는 각각 변수 $w_j$<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+신경망에서 변수 $w_j$는 모든 가중치와 편향을 포함한다.
+</span></span>에 대응한다.
+그러면 경사 하강 업데이트 규칙 $w \rightarrow w'= w-\eta \nabla C$을 다음의 식으로 대신할 수 있다.
+
+$$\begin{eqnarray} 
+  v & \rightarrow  & v' = \mu v - \eta \nabla C \tag{107}\\
+  
+  w & \rightarrow & w' = w+v'.
+\tag{108}\end{eqnarray}$$
+
+이 식에서 $\mu$은 시스템에서 감쇠<sup>damping</sup> 혹은 마찰의 양을 제어하는 하이퍼 파라미터이다.
+먼저 $\mu = 1$인 경우 마찰이 없는 것에 해당하며 이를 먼저 고려하는 것이 식을 이해하는데 도움이 된다.
+이 경우 "힘" $\nabla C$는 속도 $v$를 수정하며 속드는 $w$의 변화율을 제어한다. 
+직관적으로 보면 반복해서 경사항을 더해 속도를 만든다.
+몇 번의 학습을 통해 경사가 (대략적으로) 같은 방향이면 그 방향으로 아주 조금 움직일 수 있다는 의미이다.
+예를 들어 기울기를 따라 곧바로 아래로 움직인다면 무슨 일이 일어날지 생각해보자.
+
+<br /><br />
+<img class="contentimg" src="images/chapter3/tikz34.png" alt="digits" width="600px">
+<br /><br /> 
+
+각 단계에서 기울기를 따라 내려가면서 속도는 커지고 그에 따라 계곡의 바닥으로 점점 더 빠르게 이동한다.
+덕분에 표준적인 경사 하강 보다 모멘텀 기술이 훨씬 더 빨리 동작한다.
+물론 일단 계곡의 바닥에 도달하면 목표 지점을 지나쳐서 더 가는<sup>overshoot</sup> 문제가 있다.
+또는 경사가 급하게 바뀌면 잘못된 방향으로 움직일 수 있다.
+이 때문에 식 <span class="tooltip"><b>(107)</b><span class="tooltiptext">
+$$\begin{eqnarray} 
+  v & \rightarrow  & v' = \mu v - \eta \nabla C  \nonumber\end{eqnarray}$$
+</span></span>에 
+하이퍼 파라미터 $\mu$가 있다.
+앞서 $\mu$가 시스템에서 마찰의 양을 통제한다고 말했다.
+조금 더 정확하게 말하면 $1-\mu$을 시스템에서 마찰의 양으로 생각해야 한다.
+$\mu = 1$일 때 마찰은 없으며 속도는 경사 $\nabla C$에 따라 완전히 달라진다.
+대조적으로 $\mu = 0$일 때 마찰이 많으며 속도는 커질 수 없다.
+식 <span class="tooltip"><b>(107)</b><span class="tooltiptext">
+$$\begin{eqnarray} 
+  v & \rightarrow  & v' = \mu v - \eta \nabla C  \nonumber\end{eqnarray}$$
+</span></span>과 <span class="tooltip"><b>(108)</b><span class="tooltiptext">
+$$\begin{eqnarray}  
+  w & \rightarrow & w' = w+v' \nonumber\end{eqnarray}$$
+</span></span>은
+경사 하강에 대한 일반적인 식 $w \rightarrow w'=w-\eta \nabla C$으로 유도된다.
+실제로 $0$과 $1$사이의 중간값으로 $\mu$를 사용하면 속도를 높이면서 목표 지점을 지나쳐 가지 않을 수 있다.
+그러한 $\mu$값은 $\eta$와 $\lambda$를 선택한 방식과 같은 방법으로 held-out 검증 데이터를 이용해 선택할 수 있다.    
+</p>
+
+<p>
+지금까지 하이퍼 파라미터 $\mu$에 따로 이름을 붙이지 않았다.
+$\mu$에 대한 표준 이름이 올바르게 선택되었지 않기 때문이다.
+$\mu$는 <i>모멘텀 계수</i><sup>momentum co-efficient</sup>라 부른다.
+$\mu$는 물리학에서 모멘텀의 개념과 완전히 같지 않기 때문에 혼란스러울 가능성이 크다.
+오히려 이는 마찰과 더 밀접하게 관련이 있다.
+하지만 모멘텀 계수라는 용어는 널리 사용되고 있으며 앞으로 이 용어를 사용할 것이다.
+</p>
+
+<p>
+모멘텀 기술의 장점은 모멘텀을 포함하기 위해 경사 하강의 구현을 수정할 필요가 없다는 점이다.
+이전과 같이 경사를 계산하기 위해 역전파를 이용할 수 있으며 확률적으로 선택하여 미니 배치를 샘플링하는 아이디어를 사용할 수 있다.
+이러한 방법으로 경사가 바뀌는 방법에 대한 정보를 이용하여 헤시안 기술의 이점을 가질 수 있다.
+하지만 코드에 사소한 수정만 가하여 단점 없이 이루어 낼 수 있다. 
+실제로 모멘텀 기술은 흔히 사용하고 있고 학습 속도를 높이기도 한다.
+</p>
+
+<h2>
+예제
+</h2>
+
+<ul>
+<li>
+모멘텀 기술에서 $\mu > 1$을 사용하면 무엇이 잘 못 될까?
+</li>
+<br />
+<li>
+모멘텀 기술에서 $\mu < 0$을 사용하면 무엇이 잘 못 될까?
+</li>
+</ul>
+
+<h2>
+연습 문제
+</h2>
+
+<ul>
+<li>
+모멘텀 기반 확률적 경사 하강을 <code>network2.py</code>에 추가해라.
+</li>
+</ul>
+
+<p>
+<b>비용 함수를 최소화하는 다른 방법: </b>
+비용 함수를 최소화하는 많은 방법들이 개발되었지만 어느 것이 최고의 방법인지에 대한 합의된 의견은 없다.
+신경망을 깊이있게 다룰수록 다른 기술들은 어떻게 동작하며 강점과 약점은 무엇인지 어떻게 실질적으로 적용할 수 있는지 파고들 가치가 있다.
+이전에 언급한 논문<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+Efficient BackProp, by Yann LeCun, Léon Bottou, Genevieve Orr and Klaus-Robert Müller (1998).
+</span></span>에서
+콘쥬게이트<sup>conjugate</sup> 경사 하강과 BFGS 메소드(<a href="https://en.wikipedia.org/wiki/Limited-memory_BFGS">L-BFGS</a>라 알려진 limited-memory BFGS method 또한 살펴보자)를 포함한 다른 몇몇 기술들을 소개하고 비교하고 있다.
+최근에 좋은 결과<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+See, for example, On the importance of initialization and momentum in deep learning, by Ilya Sutskever, James Martens, George Dahl, and Geoffrey Hinton (2012).
+</span></span>를
+보여주는 또 다른 기술은 Nesterov의 가속된 경사 기술<sup>accelerated gradient technique</sup>이며 이는 모멘텀 기술을 향상시킨다.
+하지만 많은 문제에서 특히 모멘텀을 사용하면 확률적 경사 하강<sup>plain stochastic gradient descent</sup>은 잘 동작한다.
+따라서 책의 나머지 부분에서는 확률적 경사 하강을 사용할 것이다.
+</p>
+
+<br />
+<h2>
+인공 뉴런의 다른 모델
+</h2>
+<hr>
+
+<p>
+지금까지 시그모이드 뉴런을 이용하여 뉴럴 네트워크를 구성했다.
+이론적으로 시그모이드 뉴런으로 구성한 네트워크는 어떠한 함수도 계산할 수 있다.
+하지만 실질적으로 다른 뉴런 모델을 이용한 네트워크는 시그모이드 네트워크의 성능을 뛰어 넘는다.
+응용에 따라 그러한 대안적인 모델을 기반으로 한 네트워크는 빠르게 학습하기도 하며 테스트 데이터에 대해 일반화를 잘하기도 하고 혹은 둘 다 잘 할 때도 있다.
+다른 뉴런 모델을 소개하고 흔히 사용하는 변형을 제시하겠다.
+</p>
+
+<p>
+아마도 가장 간단한 변형은 tanh ("tanch"라 발음한다) 뉴런이다.
+이는 시그모이드 함수를 쌍곡 탄젠트 함수로 대체한다.
+입력이 $x$, 가중치 벡터 $w$이고 편향은 $b$일 때 tanh 뉴런의 출력은 다음과 같다.
+
+$$\begin{eqnarray}
+ \tanh(w \cdot x+b), 
+\tag{109}\end{eqnarray}$$ 
+
+여기서 물론 tanh는 쌍곡 탄젠트 함수이다.
+이는 시그모이드 뉴런과 매우 관련이 있다고 알려져 있다.
+tanh 함수는 다음과 같이 정의된다.
+
+$$\begin{eqnarray}
+  \tanh(z) \equiv \frac{e^z-e^{-z}}{e^z+e^{-z}}.
+\tag{110}\end{eqnarray}$$
+
+위 식에서 약간의 수학적 조작을 하면 다음을 쉽게 증명할 수 있다.
+
+$$\begin{eqnarray} 
+  \sigma(z) = \frac{1+\tanh(z/2)}{2},
+\tag{111}\end{eqnarray}$$
+
+즉 tanh는 단지 시그모이드 함수의 배수에 불과하다.
+또한 그래프를 그려보면 tanh 함수는 시그모이드 함수와 같은 모양을 가진다.
+
+<br /><br />
+<img class="contentimg" src="images/chapter3/tanh.png" alt="digits" width="300px">
+<br /><br /> 
+
+tanh 뉴런과 시그모이드 뉴런의 한 가지 차이점은 tanh 뉴런의 출력 범위는 $0$에서 $1$이 아니라 $-1$에서 $1$ 사이라는 점이다.
+이는 tanh 뉴런으로 네트워크를 구성하면 시그모이드 네트워크에서와는 조금 다르게 출력을 (그리고 응용의 자세한 사항에 따라 입력을) 정규화<sup>normalize</sup>할 필요가 있다.
+</p>
+
+<p>
+시그모이드 뉴런과 비슷하게 tanh 뉴런의 네트워크는 이론적으로 입력을 $-1$과 $1$ 사이로 매핑하는 어떠한 함수<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+There are some technical caveats to this statement for both tanh and sigmoid neurons, as well as for the rectified linear neurons discussed below. However, informally it's usually fine to think of neural networks as being able to approximate any function to arbitrary accuracy.
+</span></span>도 계산할 수 있다.
+게다가 역전파 같은 아이디어와 확률적 경사 하강은 시그모이드 뉴런의 네트워크에서처럼 tanh 뉴런의 네트워크에도 쉽게 적용된다.
+</p>
+
+<h2>
+예제 
+</h2>
+
+<ul>
+<li>
+식 <span class="tooltip"><b>(111)</b><span class="tooltiptext">
+$$\begin{eqnarray} 
+  \sigma(z) = \frac{1+\tanh(z/2)}{2} \nonumber\end{eqnarray}$$
+</span></span>을
+증명하라.
+</li>
+</ul>
+
+<p>
+네트워크에서 tanh와 시그모이드 중 어떤 뉴런을 사용해야 할까?
+연역적으로 대답은 명확하지 않다.
+그러나 tanh가 때로는 성능이 더 좋다<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+See, for example, Efficient BackProp, by Yann LeCun, Léon Bottou, Genevieve Orr and Klaus-Robert Müller (1998), and Understanding the difficulty of training deep feedforward networks, by Xavier Glorot and Yoshua Bengio (2010).
+</span></span>는 이론적인 주장과 경험적인 증거가 있다.
+tanh 뉴런에 대한 이론적인 주장 중 하나를 간략하게 살펴보자.
+시그모이드 뉴런을 사용하고 네트워크의 모든 활성화가 양수라고 가정하자.
+$l+1$번째 층에 있는 $j$번째 뉴런으로 입력되는 가중치 $w^{l+1}_{jk}$을 고려해보자.
+역전파에 대한 규칙에서 연관된 경사가 $a^l_k \delta^{l+1}_j$라는 것을 알 수 있다.
+활성화가 양수이므로 이 경사의 부호는 $\delta^{l+1}_j$의 부호와 같다.
+이는 $\delta^{l+1}_j$이 양수라면 <i>모든</i> 가중치 $w^{l+1}_{jk}$은 경사 하강 동안에 감소할 것이라는 의미이다.
+반면 $\delta^{l+1}_j$이 음수라면 <i>모든</i> 가중치 $w^{l+1}_{jk}$은 경사 하강 동안에 증가할 것이다.
+즉 같은 뉴런으로 들어가는 모든 가중치는 같이 증가하거나 감소해야 한다.
+가중치의 일부는 증가하고 다른 일부는 감소할 필요가 있기 때문에 문제이다.
+이는 입력 활성화 중 일부만 다른 부호를 가질 때 일어날 수 있다.
+시그모이드를 양수와 음수의 활성화를 모드 가질 수 있는 tanh와 같은 활성화 함수로 대체해야 함을 의미한다. 
+실제로 tanh는 $0$에 대하여 대칭이므로 즉 $\tanh(-z) = -\tanh(z)$이므로 은닉 층에 있는 활성화는 양수와 음수 사이에서 동등하게 균형을 이룰 것이라 기대할 수 있다.
+가중치를 업데이트 하는데 한 쪽으로 편향되지 않도록 보장한다.
+</p>
+
+<p>
+이 주장을 어떻게 받아들여야 할까?
+이 주장이 암시하지만 이는 경험적인 발견<sup>heuristic</sup>이고 tanh 뉴런이 시그모이드 뉴런보다 성능이 좋다는 엄밀한 증명이 아니다.
+아마도 이 문제를 보상하는 시그모이드 뉴런의 다른 특성이 있는 것일까?
+실제로 많은 작업에서 tanh는 시그모이드 뉴런보다 아주 작은 향상이나 향상이 없다고 경험적으로 알려져 있다.
+불행히도 어떤 특정한 응용에 대해 어느 뉴런이 빠르게 학습하는지 혹은 최상의 일반화 성능을 주는지에 대한 엄밀한 규칙이 아직 없다.
+</p>
+
+<p>
+시그모이드 뉴런에 대한 또 다른 변형은 <i>수정된 선형 뉴런</i> <sup>rectified linear neuron</sup> 혹은 <i>수정된 선형 단위</i> <sup>rectified linear unit</sup>이다.
+입력이 $x$이고 가중치 벡터 $w$, 편향이 $b$인 ReLU의 출력은 다음과 같다.
+
+$$\begin{eqnarray}
+  \max(0, w \cdot x+b).
+\tag{112}\end{eqnarray}$$ 
+
+그래프로 그려보면 함수 $\max(0, z)$은 다음과 같다.
+
+<br /><br />
+<img class="contentimg" src="images/chapter3/relu.png" alt="digits" width="400px">
+<br /><br /> 
+
+분명 그러한 뉴런은 시그모이드나 tanh 뉴런과는 꽤 다르다.
+그러나 시그모이드 뉴런과 tanh 뉴런처럼 수정된 선형 단위는 어떠한 함수도 계산할 수 있으며 역전파와 확률적 경사 하강과 같은 아이디어를 이용해 학습할 수 있다.
+</p>
+
+<p>
+언제 시그모이드 혹은 tanh 뉴런 대신에 수정된 선형 단위를 사용해야 할까?
+이미지 인식<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+See, for example, What is the Best Multi-Stage Architecture for Object Recognition?, by Kevin Jarrett, Koray Kavukcuoglu, Marc'Aurelio Ranzato and Yann LeCun (2009), Deep Sparse Rectiﬁer Neural Networks, by Xavier Glorot, Antoine Bordes, and Yoshua Bengio (2011), and ImageNet Classification with Deep Convolutional Neural Networks, by Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton (2012). Note that these papers fill in important details about how to set up the output layer, cost function, and regularization in networks using rectified linear units. I've glossed over all these details in this brief account. The papers also discuss in more detail the benefits and drawbacks of using rectified linear units. Another informative paper is Rectified Linear Units Improve Restricted Boltzmann Machines, by Vinod Nair and Geoffrey Hinton (2010), which demonstrates the benefits of using rectified linear units in a somewhat different approach to neural networks.
+</span></span>에 대한 최근의 논문은 대부분의 네트워크에 수정된 선형 단위를 사용하는 것에 상당한 이점을 발견했다.
+하지만 tanh 뉴런처럼 언제 정확히 수정된 선형 단위를 이용해야 하는지 왜 사용해야 하는지에 대한 깊은 이해가 부족하다.
+시그모이드 뉴런은 포화될 때 즉 출력이 거의 $0$ 또는 $1$일 때 시그모이드 뉴런은 학습을 멈춘다는 사실을 기억하자.
+이 장에서 반복해서 본 것처럼 문제는 $\sigma'$ 항이 경사를 감소시키고 학습 속도를 저하시키는 것이다.
+tanh 뉴런은 포화되면 비슷한 문제가 나타난다.
+대조적으로 수정된 선형 단위에 대한 가중치 입력은 포화되지 않으며 그에 따라 학습 속도 저하 문제도 없다.
+반면에 
+</p>
+
 
 
 
