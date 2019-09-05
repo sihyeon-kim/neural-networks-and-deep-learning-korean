@@ -190,7 +190,7 @@ p {
 /* Footer */
 .footer {
   padding: 20px;
-  text-align: center;
+  /*text-align: center;*/
   background: #1C3950;
   color: white;
   margin-top: 20px;

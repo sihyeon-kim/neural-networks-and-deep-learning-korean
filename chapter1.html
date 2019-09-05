@@ -36,12 +36,10 @@
 <a href="#">tmpLink</a>
 <a href="#">tmpLink</a>
 <a href="https://github.com/sihyeon-kim/neural-networks-and-deep-learning-korean" style="float:right">
-<img src="images/GitHub-Mark-32px.png" widthe="19" height="19">
+<img src="images/GitHub-Mark-32px.png" width="19" height="19">
 &nbsp;Edit on translator's Github
 </a>
 </div>
-
-    
     
 <div class="row">
 
@@ -1048,370 +1046,334 @@ v \rightarrow v' = v -\eta \nabla C.
 이를 계속 반복하여 우리가 원하는 전역 최솟값<sup>global minimum</sup>에 도달할 때 까지 $C$를 계속 감소시킬 것이다. 
 </p>
 
-<p> checkpoint!! </p>
-
 <p>
-요약하면 경사 하강 알고리즘은 반복적으로 경사 $\nabla C$을 계산하여 계곡 경사로 떨어지는 반대방향으로 움직인다.  
-이를 아래처럼 시각화할 수 있다.
+요약하면 경사 하강 알고리즘은 반복적으로 그래디언트<sup>gradient</sup> $\nabla C$을 계산하여, <i>반대</i> 방향으로 움직여 계곡의 경사를 따라 "하강"한다.  
+이를 시각화하면 아래와 같다.
 
 <br /><br />
 <img class="contentimg" src="./images/chapter1/valley_with_ball.png" alt="digits" width="500px">
 <br /><br />
 
-이 규칙으로 경사 하강이 현실 세계의 물리 운동을 만들지는 않는다. 
-현실 세계에서 공은 가속도를 가지고 가속도는 경사를 가로질러 굴러가거나 잠시나마 언덕위로 굴러가도록 만든다. 
-공이 계곡을 따라 굴러 내려간다는 것이 보장된다는 마찰 효과 후에 일어난다. 
-그에 반해, $\Delta v$를 고르는 규칙은 "지금 바로 내려가라"고 말해준다. 
-최솟값을 찾는데 여전히 좋은 규칙이다. 
+경사 하강법이 이 규칙을 이용하여 현실 세계의 물리적인 운동을 재현하는 것은 아니다.
+현실 세계에서 공은 가속도를 가지며, 가속도에 의해 공이 경사를 가로질러 (잠시나마) 언덕 위로 굴러 올라갈 수도 있다. 
+현실 세계에서 공기 계곡을 따라 굴러가는 것은 마찰의 영향을 받은 후에만 가능하다.
+그에 반해 $\Delta v$를 선택하는 규칙은 "지금 바로 내려가라"고 말해준다. 
+이는 여전히 최솟값을 찾는데 좋은 규칙이다. 
 </p>
 
-    <p>
-      경사 하강이 올바르게 동작하려면 학습률 $\eta$를 충분히 작은 값으로 골라 식
-      <span class="tooltip"><b>(9)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          \Delta C \approx \nabla C \cdot \Delta v \nonumber\end{eqnarray}$$
-        </span>
-      </span>
-      가 좋은 근사를 갖도록 해야한다. 
-      그렇지 않으면 $\Delta C > 0$가 되어 좋지 못한 결과를 얻는다. 
-      동시에 $\eta$가 너무 작아지면 $\Delta v$의 변화가 매우 작아져 경사 하강 알고리즘의 동작은 느려진다. 
-      실제 구현에서는 식 
-      <span class="tooltip"><b>(9)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          \Delta C \approx \nabla C \cdot \Delta v \nonumber\end{eqnarray}$$
-        </span>
-      </span>
-      는 좋은 근사를 갖도록하는 $\eta$는 다양하지만 알고리즘은 느리지 않다. 
-      어떻게 동작하는지 뒤에서 살펴보자.
-    </p>
+<p>
+경사 하강법이 올바르게 동작하려면 학습률 $\eta$를 충분히 작은 값으로 선택해 식
+<span class="tooltip">(9)<span class="tooltiptext">
+$$\begin{eqnarray} 
+\Delta C \approx \nabla C \cdot \Delta v \nonumber\end{eqnarray}$$
+</span></span>가 좋은 근사를 갖도록 해야한다. 
+그렇지 않으면 $\Delta C > 0$가 되어 좋지 못한 결과를 얻는다. 
+동시에 $\eta$가 너무 작아지면, $\Delta v$의 변화가 매우 작아져 경사 하강 알고리즘은 매우 느리게 동작한다. 
+실제 구현에서 식 
+<span class="tooltip">(9)<span class="tooltiptext">
+$$\begin{eqnarray} 
+\Delta C \approx \nabla C \cdot \Delta v \nonumber\end{eqnarray}$$
+</span></span>가 좋은 근사를 하면서 알고리즘이 너무 느리지 않게 만드는 $\eta$는 다양하다. 
+이것이 어떻게 동작하는지 뒤에서 살펴보자.
+</p>
 
-    <p>
-      $C$가 두 개의 변수에 대한 함수 일때 경사 하강 알고리즘을 설명했다. 
-      하지만 사실 $C$가 많은 수의 변수를 가질때에도 잘 동작한다. 
-      특히 $m$개의 변수 $v_1,\ldots,v_m$에 대한 함수 $C$를 가정하자. 
-      그러면 작은 변화 $\Delta v = (\Delta v_1, \ldots, \Delta v_m)^T$에 의한 $C$에서의 변화 $\Delta C$는 다음과 같다. 
-      
-      $$\begin{eqnarray} 
-      \Delta C \approx \nabla C \cdot \Delta v,
-      \tag{12}\end{eqnarray}$$
+<p>
+$C$가 이변수 함수인 경우에 대한 경사 하강 알고리즘을 설명했다. 
+하지만 사실 $C$가 많은 수의 변수를 가질 때에도 잘 동작한다. 
+특히 $m$개의 변수 $v_1,\ldots,v_m$에 대한 함수 $C$를 가정해보자. 
+그러면 작은 변화량 $\Delta v = (\Delta v_1, \ldots, \Delta v_m)^T$에 의한 $C$의 변화 $\Delta C$는 다음과 같다. 
 
-      여기서 $\nabla C$는 다음의 벡터이다. 
+$$\begin{eqnarray} 
+\Delta C \approx \nabla C \cdot \Delta v,
+\tag{12}\end{eqnarray}$$
 
-      $$\begin{eqnarray}
-      \nabla C \equiv \left(\frac{\partial C}{\partial v_1}, \ldots, 
-      \frac{\partial C}{\partial v_m}\right)^T.
-      \tag{13}\end{eqnarray}$$
+여기서 $\nabla C$는 다음과 같은 벡터이다. 
 
-      두 개의 변수의 경우처럼 $\Delta v$를 고를 수 있다. 
+$$\begin{eqnarray}
+\nabla C \equiv \left(\frac{\partial C}{\partial v_1}, \ldots, 
+\frac{\partial C}{\partial v_m}\right)^T.
+\tag{13}\end{eqnarray}$$
 
-      $$\begin{eqnarray}
-      \Delta v = -\eta \nabla C,
-      \tag{14}\end{eqnarray}$$
+이변수에 대한 경우처럼 $\Delta v$를 다음과 같이 선택할 수 있다. 
 
-      그리고 $\Delta C$는 음수이므로 (근사)식
-      <span class="tooltip"><b>(12)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          \Delta C \approx \nabla C \cdot \Delta v \nonumber\end{eqnarray}$$
-        </span>
-      </span>
-      는 보장된다. 
-      이를 통해 $C$가 다변수 함수일때에도 새로운 규칙을 반복적으로 적용해 경사가 최솟값을 찾도록 할 수 있다. 
+$$\begin{eqnarray}
+\Delta v = -\eta \nabla C,
+\tag{14}\end{eqnarray}$$
 
-      $$\begin{eqnarray}
-      v \rightarrow v' = v-\eta \nabla C.
-      \tag{15}\end{eqnarray}$$
+그러면 $\Delta C$에 대한 (근사)식
+<span class="tooltip">(12)<span class="tooltiptext">
+$$\begin{eqnarray} 
+\Delta C \approx \nabla C \cdot \Delta v \nonumber\end{eqnarray}$$
+</span></span>는 음수가 된다. 
+이를 통해 $C$가 다변수 함수인 경우에도 다음 식과 같은 업데이트 규칙을 반복적으로 적용해 그래디언트<sup>gradient</sup>가 최솟값을 찾도록 할 수 있다. 
 
-      이 새로운 규칙을 경사 하강 알고리즘을 정의로 생각할 수 있다. 
-      이 새로운 규칙은 함수 $C$의 최솟값을 찾으려고 위치 $v$를 반복적으로 바꾸는 방법을 제시한다. 
-      이 규칙은 항상 동작하지는 않는다. 
-      몇몇 경우 잘못된 동작을 하며 경사하강은 $C$의 전역 최솟값을 찾지 못한다. 
-      이는 뒤이은 챕터에서 살펴보겠다. 
-      하지만 실제 경사 하강은 잘 동작하며 신경망에서 비용함수를 최소화하는 강력한 방법이다. 
-      그리고 신경망의 학습을 돕는다. 
-    </p>
+$$\begin{eqnarray}
+v \rightarrow v' = v-\eta \nabla C.
+\tag{15}\end{eqnarray}$$
 
-    <p>
-      경사 하강은 최솟값을 찾는 최적 전략인 면이 있다. 
-      $C$를 가능한 많이 감소시키기 위해 위치에서 $\Delta v$를 움직인다고 가정하자. 
-      이는 $\Delta C \approx \nabla C \cdot \Delta v$를 최소화하는 것과 같다. 
-      어떤 고정된 값 $\epsilon > 0$에 대한 $\| \Delta v \| = \epsilon$를 만족하도록 위치 변화의 크기를 제한해보자. 
-      즉, 고정된 크기로 위치를 변화시키고 $C$가 가능한 많이 감소하는 위치 변화 방향을 찾고자 한다. 
-      $\nabla C \cdot \Delta v$를 최소화하는 $\Delta v$는 $\Delta v = - \eta \nabla C$라는 것을 증명할 수 있다. 
-      여기서 $\eta = \epsilon / \|\nabla C\|$는 크기 제한 $\|\Delta v\| = \epsilon$이 결정한다. 
-      그래서 경사 하강은 $C$를 가장 많이 감소하는 방향으로 내려가는 방법이라 할 수 있다.  
-    </p>
+이 업데이트 규칙이 경사 하강 알고리즘을 <i>정의</i>한다고 볼 수 있다.
+업데이트 규칙은 함수 $C$의 최솟값을 찾기 위해 위치 $v$를 반복적으로 바꾼다. 
+규칙이 항상 동작하는 것은 아니다 - 
+몇몇 경우에 잘못된 동작을 하며 경사 하강법은 $C$의 전역 최솟값을 찾지 못한다. 
+이 내용에 대해서는 책의 뒷부분에서 살펴보겠다. 
+하지만 실제로 경사 하강법은 잘 동작하며, 뉴럴 네트워크에서 비용 함수를 최소화하는 매우 강력한 방법이다. 
+그래서 뉴럴 네트워크는 경사 하강법을 통해 학습한다. 
+</p>
 
-    <br />
-    <h2>예제</h2>
+<p> checkpoint </p>
 
-    <p>
-      <ul>
-        <li>
-          <p>
-            이전 단락의 주장을 증명하라. 
-            힌트: 쿄시-슈바르츠 부등식을 이용하라. 
-          </p>
-        </li>
-        
-        <li>
-          <p>
-            함수 $C$가 이변수 함수인 경우와 다변수 함수인 경우에 대해 경사 하강 알고리즘을 설명하였다. 
-            함수 $C$가 일변수 함수인 경우 무슨 일이 일어나는가? 
-            일차원인 경우 경사 하강 알고리즘의 동작을 기하학적으로 해석할 수 있나?
-          </p>
-        </li>
-      </ul>
-    </p>
+<p>
+경사 하강은 최솟값을 찾는 최적 전략인 면이 있다. 
+$C$를 가능한 많이 감소시키기 위해 위치에서 $\Delta v$를 움직인다고 가정하자. 
+이는 $\Delta C \approx \nabla C \cdot \Delta v$를 최소화하는 것과 같다. 
+어떤 고정된 값 $\epsilon > 0$에 대한 $\| \Delta v \| = \epsilon$를 만족하도록 위치 변화의 크기를 제한해보자. 
+즉, 고정된 크기로 위치를 변화시키고 $C$가 가능한 많이 감소하는 위치 변화 방향을 찾고자 한다. 
+$\nabla C \cdot \Delta v$를 최소화하는 $\Delta v$는 $\Delta v = - \eta \nabla C$라는 것을 증명할 수 있다. 
+여기서 $\eta = \epsilon / \|\nabla C\|$는 크기 제한 $\|\Delta v\| = \epsilon$이 결정한다. 
+그래서 경사 하강은 $C$를 가장 많이 감소하는 방향으로 내려가는 방법이라 할 수 있다.  
+</p>
 
-    <p>
-      사람들은 실제 물리 현상을 모방한 것을 포함한 경사 하강 알고리즘의 변형들을 많이 연구했다. 
-      공의 움직임을 모방한 변형은 어떤 면에서 이점을 가지지만 주요한 단점 또한 가진다. 
-      $C$의 이차 편미분을 계산해야 하며 이는 비용이 많이 든다. 
-      비용이 많이 드는 이유를 살펴보자. 
-      모든 이차 편도함수 $\partial^2 C/ \partial v_j \partial v_k$ 을 계산한다고 가정하자. 
-      변수 $v_j$ 가 백 만개 있다면 백만의 제곱인 일억 번의 이차 편도함수 계산을 해야한다. 
-      이를 계산하는 비용은 많이 든다. 
-      그렇지만 이런 문제를 피하는 몇 가지 속임수가 있고, 경사 하강에 대한 대안을 찾는 것은 현재 활발하게 연구되고 있는 분야이다. 
-      하지만 이 책에서 신경망 학습에 대한 방법으로 경사 하강과 그의 변형을 살펴볼 것이다. 
-    </p>
+<br />
+<h2>예제</h2>
 
-    <p>
-      신경망을 학습시키기 위해 경사 하강을 어떻게 적용할 수 있을까? 
-      식 
+<p>
+<ul>
+<li>
+<p>
+이전 단락의 주장을 증명하라. 
+힌트: 쿄시-슈바르츠 부등식을 이용하라. 
+</p>
+</li>
 
-      <span class="tooltip"><b>(6)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray}  C(w,b) \equiv
-          \frac{1}{2n} \sum_x \| y(x) - a\|^2 \nonumber\end{eqnarray}$$
-        </span>
-      </span>
+<li>
+<p>
+함수 $C$가 이변수 함수인 경우와 다변수 함수인 경우에 대해 경사 하강 알고리즘을 설명하였다. 
+함수 $C$가 일변수 함수인 경우 무슨 일이 일어나는가? 
+일차원인 경우 경사 하강 알고리즘의 동작을 기하학적으로 해석할 수 있나?
+</p>
+</li>
+</ul>
+</p>
 
-      에서 비용을 최소화 하는 가중치 $w_k$ 와 편향 $b_l$ 을 찾기위해 경사 하강을 사용하는 것이 기본적인 생각이다. 
-      어떻게 동작하는지 살펴보기 위해 경사 하강 갱신 규칙을 $v_j$를 치환하여 가중치와 편향으로 다시 써보자. 
-      즉, "위치"는 $w_k$ 와 $b_l$ 을 가지며 경사 벡터 $\nabla C$ 는 상응하는 $\partial C / \partial w_k$ 와 $\partial C / \partial b_l$ 을 가진다. 
-      경사 하강 갱신 규칙을 위의 요소들로 다시 쓰면 다음과 같다. 
+<p>
+사람들은 실제 물리 현상을 모방한 것을 포함한 경사 하강 알고리즘의 변형들을 많이 연구했다. 
+공의 움직임을 모방한 변형은 어떤 면에서 이점을 가지지만 주요한 단점 또한 가진다. 
+$C$의 이차 편미분을 계산해야 하며 이는 비용이 많이 든다. 
+비용이 많이 드는 이유를 살펴보자. 
+모든 이차 편도함수 $\partial^2 C/ \partial v_j \partial v_k$ 을 계산한다고 가정하자. 
+변수 $v_j$ 가 백 만개 있다면 백만의 제곱인 일억 번의 이차 편도함수 계산을 해야한다. 
+이를 계산하는 비용은 많이 든다. 
+그렇지만 이런 문제를 피하는 몇 가지 속임수가 있고, 경사 하강에 대한 대안을 찾는 것은 현재 활발하게 연구되고 있는 분야이다. 
+하지만 이 책에서 신경망 학습에 대한 방법으로 경사 하강과 그의 변형을 살펴볼 것이다. 
+</p>
 
-      $$\begin{eqnarray}
-      w_k & \rightarrow & w_k' = w_k-\eta \frac{\partial C}{\partial w_k} \tag{16}\\
-      b_l & \rightarrow & b_l' = b_l-\eta \frac{\partial C}{\partial b_l}.
-      \tag{17}\end{eqnarray}$$
+<p>
+신경망을 학습시키기 위해 경사 하강을 어떻게 적용할 수 있을까? 
+식 
+<span class="tooltip">(6)<span class="tooltiptext">
+$$\begin{eqnarray}  C(w,b) \equiv
+\frac{1}{2n} \sum_x \| y(x) - a\|^2 \nonumber\end{eqnarray}$$
+</span></span>에서 비용을 최소화 하는 가중치 $w_k$ 와 편향 $b_l$ 을 찾기위해 경사 하강을 사용하는 것이 기본적인 생각이다. 
+어떻게 동작하는지 살펴보기 위해 경사 하강 갱신 규칙을 $v_j$를 치환하여 가중치와 편향으로 다시 써보자. 
+즉, "위치"는 $w_k$ 와 $b_l$ 을 가지며 경사 벡터 $\nabla C$ 는 상응하는 $\partial C / \partial w_k$ 와 $\partial C / \partial b_l$ 을 가진다. 
+경사 하강 갱신 규칙을 위의 요소들로 다시 쓰면 다음과 같다. 
 
-      이 갱신 규칙을 반복적으로 적용하여 "언덕 아래로 굴러 내려"갈 수 있으며, 비용함수의 최솟값을 찾을 수 있다. 
-      다시 말해, 이것이 바로 신경망에서 학습을 하는데 사용할 수 있는 규칙이다. 
-    </p>
+$$\begin{eqnarray}
+w_k & \rightarrow & w_k' = w_k-\eta \frac{\partial C}{\partial w_k} \tag{16}\\
+b_l & \rightarrow & b_l' = b_l-\eta \frac{\partial C}{\partial b_l}.
+\tag{17}\end{eqnarray}$$
 
-    <p>
-      경사 하강 규칙을 적용하는데 몇 가지 어려움이 있다. 
-      책의 뒷 부분에서 어려움을 깊이 살펴보도록 하자. 
-      당분간은 한 가지 문제에 대해 말하고자 한다. 
-      문제가 무엇인지 이해하기 위해 식
+이 갱신 규칙을 반복적으로 적용하여 "언덕 아래로 굴러 내려"갈 수 있으며, 비용함수의 최솟값을 찾을 수 있다. 
+다시 말해, 이것이 바로 신경망에서 학습을 하는데 사용할 수 있는 규칙이다. 
+</p>
 
-      <span class="tooltip"><b>(6)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray}  C(w,b) \equiv
-          \frac{1}{2n} \sum_x \| y(x) - a\|^2 \nonumber\end{eqnarray}$$
-        </span>
-      </span>
+<p>
+경사 하강 규칙을 적용하는데 몇 가지 어려움이 있다. 
+책의 뒷 부분에서 어려움을 깊이 살펴보도록 하자. 
+당분간은 한 가지 문제에 대해 말하고자 한다. 
+문제가 무엇인지 이해하기 위해 식
+<span class="tooltip">(6)<span class="tooltiptext">
+$$\begin{eqnarray}  C(w,b) \equiv
+\frac{1}{2n} \sum_x \| y(x) - a\|^2 \nonumber\end{eqnarray}$$
+</span></span>에서 이차 비용함수를 다시 살펴보자. 
+이 비용함수는 $C = \frac{1}{n} \sum_x C_x$ 과 같은 형태를 가지며, 이는 각각의 학습 데이터에 대한 비용 $C_x \equiv \frac{\|y(x)-a\|^2}{2}$ 의 평균이다. 
+실제로 $\nabla C$ 을 계산하려면 각각의 학습 데이터 입력 $x$ 에 대해 개별적으로 $\nabla C_x$ 을 계산한 다음 평균해야한다. 
+그러면 $\nabla C = \frac{1}{n} \sum_x \nabla C_x$ 이 된다. 
+하지만 학습 데이터 입력 수가 많으면 계산이 오래 걸리며 학습은 매우 느리게 일어난다.  
+</p>
 
-      에서 이차 비용함수를 다시 살펴보자. 
-      이 비용함수는 $C = \frac{1}{n} \sum_x C_x$ 과 같은 형태를 가지며, 이는 각각의 학습 데이터에 대한 비용 $C_x \equiv \frac{\|y(x)-a\|^2}{2}$ 의 평균이다. 
-      실제로 $\nabla C$ 을 계산하려면 각각의 학습 데이터 입력 $x$ 에 대해 개별적으로 $\nabla C_x$ 을 계산한 다음 평균해야한다. 
-      그러면 $\nabla C = \frac{1}{n} \sum_x \nabla C_x$ 이 된다. 
-      하지만 학습 데이터 입력 수가 많으면 계산이 오래 걸리며 학습은 매우 느리게 일어난다.  
-    </p>
+<p>
+확률적 경사 하강(stochastic gradient descent)을 이용하면 학습을 빨리 할 수 있다. 
+무작위로 고른 학습 데이터 입력에 대해 $\nabla C_x$ 을 계산하여 $\nabla C$ 을 계산하는 것이 아이디어이다. 
+이 작은 표본을 평균하여 $\nabla C$ 의 빨리 측정할 수 있으며 이는 경사 하강 속도를 높이고 학습 속도 또한 빠르게 한다. 
+</p>
 
-    <p>
-      확률적 경사 하강(stochastic gradient descent)을 이용하면 학습을 빨리 할 수 있다. 
-      무작위로 고른 학습 데이터 입력에 대해 $\nabla C_x$ 을 계산하여 $\nabla C$ 을 계산하는 것이 아이디어이다. 
-      이 작은 표본을 평균하여 $\nabla C$ 의 빨리 측정할 수 있으며 이는 경사 하강 속도를 높이고 학습 속도 또한 빠르게 한다. 
-    </p>
+<p>
+이 아이디어를 더 정확하게 써보면, 확률적 경사 하강은 무작위로 고른 학습 데이터 입력 $m$ 개를 선택하여 동작한다. 
+이렇게 무작위로 뽑힌 학습 데이터 입력을 $X_1, X_2, \ldots, X_m$ 이라 하고, 이들을 미니 배치(mini-batch)라 하자. 
+표본 크기 $m$이 충분히 크면 $\nabla C_{X_j}$ 의 평균 값은 모든 $\nabla C_x$ 값의 평균과 대략적으로 같아진다. 
+식으로 쓰면 다음과 같다. 
 
-    <p>
-      이 아이디어를 더 정확하게 써보면, 확률적 경사 하강은 무작위로 고른 학습 데이터 입력 $m$ 개를 선택하여 동작한다. 
-      이렇게 무작위로 뽑힌 학습 데이터 입력을 $X_1, X_2, \ldots, X_m$ 이라 하고, 이들을 미니 배치(mini-batch)라 하자. 
-      표본 크기 $m$이 충분히 크면 $\nabla C_{X_j}$ 의 평균 값은 모든 $\nabla C_x$ 값의 평균과 대략적으로 같아진다. 
-      식으로 쓰면 다음과 같다. 
+$$\begin{eqnarray}
+\frac{\sum_{j=1}^m \nabla C_{X_{j}}}{m} \approx \frac{\sum_x \nabla C_x}{n} = \nabla C,
+\tag{18}\end{eqnarray}$$
 
-      $$\begin{eqnarray}
-      \frac{\sum_{j=1}^m \nabla C_{X_{j}}}{m} \approx \frac{\sum_x \nabla C_x}{n} = \nabla C,
-      \tag{18}\end{eqnarray}$$
+여기서 두 번째 합은 학습 데이터 전체에 대한 합이다. 
+양 변을 바꿔서 쓰면 다음과 같다. 
 
-      여기서 두 번째 합은 학습 데이터 전체에 대한 합이다. 
-      양 변을 바꿔서 쓰면 다음과 같다. 
+$$\begin{eqnarray}
+\nabla C \approx \frac{1}{m} \sum_{j=1}^m \nabla C_{X_{j}},
+\tag{19}\end{eqnarray}$$
 
-      $$\begin{eqnarray}
-      \nabla C \approx \frac{1}{m} \sum_{j=1}^m \nabla C_{X_{j}},
-      \tag{19}\end{eqnarray}$$
+무작위로 고른 미니 배치에 대한 경사를 계산하여 전체 경사를 측정할 수 있다는 점을 확인하자. 
+</p>
 
-      무작위로 고른 미니 배치에 대한 경사를 계산하여 전체 경사를 측정할 수 있다는 점을 확인하자. 
-    </p>
+<p>
+이를 신경망 학습과 연관시켜보자. 
+$w_k$ 와 $b_l$ 을 신경망의 가중치와 편향이라 가정하자. 
+그러면 확률적 경사 하강은 무작위로 선택한 학습 입력 미니 배치를 뽑아서 동작한다. 
+그리고 다음의 식으로 학습을 진행한다. 
 
-    <p>
-      이를 신경망 학습과 연관시켜보자. 
-      $w_k$ 와 $b_l$ 을 신경망의 가중치와 편향이라 가정하자. 
-      그러면 확률적 경사 하강은 무작위로 선택한 학습 입력 미니 배치를 뽑아서 동작한다. 
-      그리고 다음의 식으로 학습을 진행한다. 
+$$\begin{eqnarray} 
+w_k & \rightarrow & w_k' = w_k-\frac{\eta}{m}
+\sum_j \frac{\partial C_{X_j}}{\partial w_k} \tag{20}\\
 
-      $$\begin{eqnarray} 
-      w_k & \rightarrow & w_k' = w_k-\frac{\eta}{m}
-      \sum_j \frac{\partial C_{X_j}}{\partial w_k} \tag{20}\\
-      
-      b_l & \rightarrow & b_l' = b_l-\frac{\eta}{m}
-      \sum_j \frac{\partial C_{X_j}}{\partial b_l},
-      \tag{21}\end{eqnarray}$$
+b_l & \rightarrow & b_l' = b_l-\frac{\eta}{m}
+\sum_j \frac{\partial C_{X_j}}{\partial b_l},
+\tag{21}\end{eqnarray}$$
 
-      여기서 합은 현재 미니 배치에서 모든 학습 입력 $X_j$ 에 대한 합이다. 
-      그런 다음 무작위로 선택한 다른 미니 배치를 골라 학습한다. 
-      학습 입력 데이터가 고갈될 때 까지 학습을 진행하며 이는 학습의 한 세대(an epoch of training)를 완료했다고 말한다. 
-      이 시점에서 새로운 학습 세대를 시작한다. 
-    </p>
+여기서 합은 현재 미니 배치에서 모든 학습 입력 $X_j$ 에 대한 합이다. 
+그런 다음 무작위로 선택한 다른 미니 배치를 골라 학습한다. 
+학습 입력 데이터가 고갈될 때 까지 학습을 진행하며 이는 학습의 한 세대(an epoch of training)를 완료했다고 말한다. 
+이 시점에서 새로운 학습 세대를 시작한다. 
+</p>
 
-    <p>
-      덧붙여 말하자면 비용 함수의 조정과 가중치와 편향을 갱신하는 미니 배치의 조정에 다양한 규칙이 있다는 점을 생각해야 한다. 
-      식 
+<p>
+덧붙여 말하자면 비용 함수의 조정과 가중치와 편향을 갱신하는 미니 배치의 조정에 다양한 규칙이 있다는 점을 생각해야 한다. 
+식 
+<span class="tooltip">(6)<span class="tooltiptext">
+$$\begin{eqnarray}  C(w,b) \equiv
+\frac{1}{2n} \sum_x \| y(x) - a\|^2 \nonumber\end{eqnarray}$$
+</span></span>에서 전체 비용 함수를 $\frac{1}{n}$ 해주었다. 
+평균이 아닌 개별 학습 데이터에 대한 합을 계산할 때 $\frac{1}{n}$ 을 빼먹는 경우가 많다. 
+전체 학습 데이터 개수가 알려지지 않은 경우에는 유용하다. 
+예를 들어 실시간으로 학습 데이터가 만들어지는 경우 이를 이용할 수 있다. 
+그리고 비슷한 방법으로 미니 배치는 규칙 
+<span class="tooltip">(20)<span class="tooltiptext">
+$$\begin{eqnarray} 
+w_k & \rightarrow & w_k' = w_k-\frac{\eta}{m}
+\sum_j \frac{\partial C_{X_j}}{\partial w_k}  \nonumber\end{eqnarray}$$
+</span></span>과
 
-      <span class="tooltip"><b>(6)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray}  C(w,b) \equiv
-          \frac{1}{2n} \sum_x \| y(x) - a\|^2 \nonumber\end{eqnarray}$$
-        </span>
-      </span>
+<span class="tooltip">(21)<span class="tooltiptext">
+$$\begin{eqnarray}  
+b_l & \rightarrow & b_l' = b_l-\frac{\eta}{m}
+\sum_j \frac{\partial C_{X_j}}{\partial b_l} \nonumber\end{eqnarray}$$
+</span></span>을 갱신 할때 합 앞에 $\frac{1}{m}$ 을 빼먹는 경우가 있다. 
+학습률 $\eta$ 를 조정하는 것과 동등하므로 개념적으로 큰 차이는 없다. 
+하지만 다른 작업들을 상세히 비교할 때 살펴볼 가치가 있다. 
+</p>
 
-      에서 전체 비용 함수를 $\frac{1}{n}$ 해주었다. 
-      평균이 아닌 개별 학습 데이터에 대한 합을 계산할 때 $\frac{1}{n}$ 을 빼먹는 경우가 많다. 
-      전체 학습 데이터 개수가 알려지지 않은 경우에는 유용하다. 
-      예를 들어 실시간으로 학습 데이터가 만들어지는 경우 이를 이용할 수 있다. 
-      그리고 비슷한 방법으로 미니 배치는 규칙 
+<p>
+확률적 경사 하강을 정치적인 여론 조사로 생각 할 수 있다. 
+전체 선거를 진행하는 것보다 여론 조사를 진행하는 것이 쉬운 것처럼 전체 배치에 대해 경사 하강을 적용하는 것보다 표본인 미니 배치에 대해 적용하는 것이 훨씬 쉽다. 
+예를 들어 MNIST처럼 학습 데이터 크기가 $n = 60,000$ 인 경우 미니 배치 크기를 $m = 10$ 으로 하면 경사를 측정하는데 $6,000$ 배 빠르게 할 수 있다. 
+물론, 통계적인 변동이 있을 수 있으므로 측정이 완벽하지는 않지만 완벽할 필요는 없다. 
+우리에게 필요한 것은 $C$ 를 감소시키는 일반적인 방향에 대한 움직임이다. 
+이는 경사의 계산을 정확하게 할 필요는 없다는 것을 의미한다. 
+실제로 확률적 경사 하강은 흔히 쓰이는 방법이고 신경망을 학습하는데 강력한 기술이다. 
+그리고 이 책에서 살펴볼 학습 방법의 기본이 된다.  
+</p>
 
-      <span class="tooltip"><b>(20)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          w_k & \rightarrow & w_k' = w_k-\frac{\eta}{m}
-          \sum_j \frac{\partial C_{X_j}}{\partial w_k}  \nonumber\end{eqnarray}$$
-        </span>
-      </span>
+<br />
+<h2>예제</h2>
 
-      과
+<p>
+<ul>
+<li>
+<p>
+경사 하강의 극단적인 예는 미니 배치 크기를 1로 하는 것이다. 
+즉, 학습 데이터 입력 $x$ 가 주어지고 가중치와 편향을 $w_k \rightarrow w_k' = w_k - \eta \partial C_x / \partial w_k$ 과 $b_l \rightarrow b_l' = b_l - \eta \partial C_x / \partial b_l$ 에 따라 갱신한다. 
+그런 다음 다른 학습 데이터를 고르고 가중치와 편향을 다시 갱신한다. 
+이 과정을 계속 반복한다. 
+이 절차를 온라인 학습 또는 증분식 학습(online, on-line, or incremental learning)이라 한다. 
+온라인 학습에서 신경망은 한 번에 하나의 학습 데이터를 이용해 학습한다. 
+미니 배치 크기가 20인 확률적 경사 하강과 비교하여 온라인 학습의 장점과 단점을 서술하여라. 
+</p>
+</li>
+</ul>
+</p>
 
-      <span class="tooltip"><b>(21)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray}  
-          b_l & \rightarrow & b_l' = b_l-\frac{\eta}{m}
-          \sum_j \frac{\partial C_{X_j}}{\partial b_l} \nonumber\end{eqnarray}$$
-        </span>
-      </span>
+<p>
+경사 하강을 처음 접하는 사람들을 괴롭히는 점들을 설명하면서 이 절을 마무리하려 한다. 
+신경망에서 비용 함수 $C$는 모든 가중치와 편향을 변수로 하는 다변수 함수이고 어떤 점에서는 고차원 공간에서 면을 정의한다. 
+몇몇 사람들은 다음과 같은 생각에 마주한다. 
+"이 차원을 시각화할 수 있어야한다."
+그리고 다음과 같은 걱정을 한다. 
+"5차원은 커녕 사차원도 상상할 수 없다."
+진정한 수학자가 가지는 어떤 특별한 능력이 있을까? 
+물론 없다. 
+전문적인 수학자라 할지라도 사차원을 시각화할 수 없다. 
+대신 수학자들이 무슨 일이 일어나는지 표시하기 위해 다른 방법을 사용한다. 
+그것은 바로 우리가 위에서 살표본 것들이다. 
+$C$ 를 감소시키기 위해 어떻게 움직이는지 이해하려고 $\Delta C$ 를 표현하는 시각적 표현 대신에 수식을 사용했다. 
+고차원을 생각하는데 뛰어난 사람들은 이러한 것을 따라 다양한 기술들을 가지고 있다. 
+수학적 표현은 하나의 예이다. 
+이러한 기술은 삼차원을 시각화하는 것 만큼 단순함을 가지지 못하지만 이러한 기술을 한 번 습득하면 고차원을 아주 잘 생각할 수 있다. 
+여기서는 더 깊게 들어가지 않겠다. 
+하지만 수학자가 고차원을 생각하는 방법에 대한 <a href="https://mathoverflow.net/questions/25983/intuitive-crutches-for-higher-dimensional-thinking">다음 글</a>을 읽어보면 좋다. 
+몇몇 기술은 꽤 복잡하지만 대부분의 내용은 직간적이며 누구나 공부할 수 있다.  
+</p>
 
-      을 갱신 할때 합 앞에 $\frac{1}{m}$ 을 빼먹는 경우가 있다. 
-      학습률 $\eta$ 를 조정하는 것과 동등하므로 개념적으로 큰 차이는 없다. 
-      하지만 다른 작업들을 상세히 비교할 때 살펴볼 가치가 있다. 
-    </p>
+<br />
+<h2>숫자를 분류하는 신경망 구현하기</h2>
+<hr>
 
-    <p>
-      확률적 경사 하강을 정치적인 여론 조사로 생각 할 수 있다. 
-      전체 선거를 진행하는 것보다 여론 조사를 진행하는 것이 쉬운 것처럼 전체 배치에 대해 경사 하강을 적용하는 것보다 표본인 미니 배치에 대해 적용하는 것이 훨씬 쉽다. 
-      예를 들어 MNIST처럼 학습 데이터 크기가 $n = 60,000$ 인 경우 미니 배치 크기를 $m = 10$ 으로 하면 경사를 측정하는데 $6,000$ 배 빠르게 할 수 있다. 
-      물론, 통계적인 변동이 있을 수 있으므로 측정이 완벽하지는 않지만 완벽할 필요는 없다. 
-      우리에게 필요한 것은 $C$ 를 감소시키는 일반적인 방향에 대한 움직임이다. 
-      이는 경사의 계산을 정확하게 할 필요는 없다는 것을 의미한다. 
-      실제로 확률적 경사 하강은 흔히 쓰이는 방법이고 신경망을 학습하는데 강력한 기술이다. 
-      그리고 이 책에서 살펴볼 학습 방법의 기본이 된다.  
-    </p>
+<p>
+확률적 경사 하강과 MNIST 학습 데이터를 이용해서 손글씨 숫자를 인식하는 방법을 학습하는 프로그램을 작성해보자. 
+파이썬 (2.7) 프로그램을 이용해 단 74줄의 코드로 작성하겠다. 
+먼저 필요한 것은 MNIST 데이터이다. 
+git 사용자라면 이 책의 코드 저장소를 클론(cloning)해서 데이터를 얻을 수 있다. 
+git 사용자가 아니라면 <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/archive/master.zip">여기서</a> 데이터와 코드를 다운받을 수 있다. 
+</p>
 
-    <br />
-    <h2>예제</h2>
+<p>
+MNIST 데이터를 처음에 설명할 때 $60,000$ 개의 학습 이미지와 $10,000$ 개의 테스트 이미지로 구성된다고 했다. 
+이것이 공식적인 MNIST이다. 
+사실 여기서는 데이터를 조금 다른 방식으로 나눌 것이다. 
+테스트 이미지는 그대로 남겨두고 $60,000$ 개의 학습 데이터를 두 부분으로 나누겠다. 
+$50,000$ 개의 이미지를 이용해 신경망을 학습시키고, 다른 $10,000$ 개의 이미지를 검증 데이터셋(validation set)으로 사용하겠다. 
+이 장에서는 검증 데이터를 사용하지 않을거다. 
+하지만 책의 뒷 부분에서 학습률과 같은 신경망의 하이퍼파라미터(hyper-parameters)를 설정하는 방법을 찾는데 검증 데이터셋을 이용할 것이다. 
+하이퍼파라미터는 학습 알고리즘이 직접 선택하지 않는다. 
+검증 데이터는 원래의 MNIST 데이터의 한 부분이 아니지만 대부분의 사람들은 이러한 방식으로 MNIST를 이용하고 검증 데이터의 사용은 신경망에서 흔한 방법이다. 
+앞으로 "MNIST 학습 데이터"는 $60,000$ 개의 원본 이미지 데이터셋
+<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+As noted earlier, the MNIST data set is based on two data sets collected by NIST, <br />
+the United States' National Institute of Standards and Technology. <br />
+To construct MNIST the NIST data sets were stripped down and <br />
+put into a more convenient format by Yann LeCun, Corinna Cortes, <br />
+and Christopher J. C. Burges. See this link for more details. <br />
+The data set in my repository is in a form that makes it easy <br />
+to load and manipulate the MNIST data in Python. <br />
+I obtained this particular form of the data <br /> 
+from the LISA machine learning laboratory <br /> 
+at the University of Montreal (link). 
+</span></span>이 아닌 $50,000$ 개의 이미지 데이터 셋을 의미한다.  
+</p>
 
-    <p>
-      <ul>
-        <li>
-          <p>
-            경사 하강의 극단적인 예는 미니 배치 크기를 1로 하는 것이다. 
-            즉, 학습 데이터 입력 $x$ 가 주어지고 가중치와 편향을 $w_k \rightarrow w_k' = w_k - \eta \partial C_x / \partial w_k$ 과 $b_l \rightarrow b_l' = b_l - \eta \partial C_x / \partial b_l$ 에 따라 갱신한다. 
-            그런 다음 다른 학습 데이터를 고르고 가중치와 편향을 다시 갱신한다. 
-            이 과정을 계속 반복한다. 
-            이 절차를 온라인 학습 또는 증분식 학습(online, on-line, or incremental learning)이라 한다. 
-            온라인 학습에서 신경망은 한 번에 하나의 학습 데이터를 이용해 학습한다. 
-            미니 배치 크기가 20인 확률적 경사 하강과 비교하여 온라인 학습의 장점과 단점을 서술하여라. 
-          </p>
-        </li>
-      </ul>
-    </p>
+<p>
+MNIST 데이터외에 선형대수 계산을 빨리 하기위해 <a href="http://www.numpy.org/">Numpy</a>라 불리는 파이썬 라이브러리가 필요하다. 
+Numpy 설치는 <a href="https://www.scipy.org/install.html">여기서</a> 할 수 있다. 
+</p>
 
-    <p>
-      경사 하강을 처음 접하는 사람들을 괴롭히는 점들을 설명하면서 이 절을 마무리하려 한다. 
-      신경망에서 비용 함수 $C$는 모든 가중치와 편향을 변수로 하는 다변수 함수이고 어떤 점에서는 고차원 공간에서 면을 정의한다. 
-      몇몇 사람들은 다음과 같은 생각에 마주한다. 
-      "이 차원을 시각화할 수 있어야한다."
-      그리고 다음과 같은 걱정을 한다. 
-      "5차원은 커녕 사차원도 상상할 수 없다."
-      진정한 수학자가 가지는 어떤 특별한 능력이 있을까? 
-      물론 없다. 
-      전문적인 수학자라 할지라도 사차원을 시각화할 수 없다. 
-      대신 수학자들이 무슨 일이 일어나는지 표시하기 위해 다른 방법을 사용한다. 
-      그것은 바로 우리가 위에서 살표본 것들이다. 
-      $C$ 를 감소시키기 위해 어떻게 움직이는지 이해하려고 $\Delta C$ 를 표현하는 시각적 표현 대신에 수식을 사용했다. 
-      고차원을 생각하는데 뛰어난 사람들은 이러한 것을 따라 다양한 기술들을 가지고 있다. 
-      수학적 표현은 하나의 예이다. 
-      이러한 기술은 삼차원을 시각화하는 것 만큼 단순함을 가지지 못하지만 이러한 기술을 한 번 습득하면 고차원을 아주 잘 생각할 수 있다. 
-      여기서는 더 깊게 들어가지 않겠다. 
-      하지만 수학자가 고차원을 생각하는 방법에 대한 <a href="https://mathoverflow.net/questions/25983/intuitive-crutches-for-higher-dimensional-thinking">다음 글</a>을 읽어보면 좋다. 
-      몇몇 기술은 꽤 복잡하지만 대부분의 내용은 직간적이며 누구나 공부할 수 있다.  
-    </p>
+<p>
+전체 코드를 보여주기에 앞서 신경망 코드의 핵심적인 특징을 설명하려 한다. 
+주목할만한 부분은 <code>Network</code> 클래스이다.
+이를 이용해 신경망을 표현한다. 
+아래 코드를 이용해 <code>Network</code> 객체를 초기화한다. 
 
-    <br />
-    <h2>숫자를 분류하는 신경망 구현하기</h2>
-    <hr>
-
-    <p>
-      확률적 경사 하강과 MNIST 학습 데이터를 이용해서 손글씨 숫자를 인식하는 방법을 학습하는 프로그램을 작성해보자. 
-      파이썬 (2.7) 프로그램을 이용해 단 74줄의 코드로 작성하겠다. 
-      먼저 필요한 것은 MNIST 데이터이다. 
-      git 사용자라면 이 책의 코드 저장소를 클론(cloning)해서 데이터를 얻을 수 있다. 
-      git 사용자가 아니라면 <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/archive/master.zip">여기서</a> 데이터와 코드를 다운받을 수 있다. 
-    </p>
-
-    <p>
-      MNIST 데이터를 처음에 설명할 때 $60,000$ 개의 학습 이미지와 $10,000$ 개의 테스트 이미지로 구성된다고 했다. 
-      이것이 공식적인 MNIST이다. 
-      사실 여기서는 데이터를 조금 다른 방식으로 나눌 것이다. 
-      테스트 이미지는 그대로 남겨두고 $60,000$ 개의 학습 데이터를 두 부분으로 나누겠다. 
-      $50,000$ 개의 이미지를 이용해 신경망을 학습시키고, 다른 $10,000$ 개의 이미지를 검증 데이터셋(validation set)으로 사용하겠다. 
-      이 장에서는 검증 데이터를 사용하지 않을거다. 
-      하지만 책의 뒷 부분에서 학습률과 같은 신경망의 하이퍼파라미터(hyper-parameters)를 설정하는 방법을 찾는데 검증 데이터셋을 이용할 것이다. 
-      하이퍼파라미터는 학습 알고리즘이 직접 선택하지 않는다. 
-      검증 데이터는 원래의 MNIST 데이터의 한 부분이 아니지만 대부분의 사람들은 이러한 방식으로 MNIST를 이용하고 검증 데이터의 사용은 신경망에서 흔한 방법이다. 
-      앞으로 "MNIST 학습 데이터"는 $60,000$ 개의 원본 이미지 데이터셋
-      <span class="tooltip"><b>*</b>
-        <span class="tooltiptext">
-          As noted earlier, the MNIST data set is based on two data sets collected by NIST, <br />
-          the United States' National Institute of Standards and Technology. <br />
-          To construct MNIST the NIST data sets were stripped down and <br />
-          put into a more convenient format by Yann LeCun, Corinna Cortes, <br />
-          and Christopher J. C. Burges. See this link for more details. <br />
-          The data set in my repository is in a form that makes it easy <br />
-          to load and manipulate the MNIST data in Python. <br />
-          I obtained this particular form of the data <br /> 
-          from the LISA machine learning laboratory <br /> 
-          at the University of Montreal (link). 
-        </span>
-      </span>
-      이 아닌 $50,000$ 개의 이미지 데이터 셋을 의미한다.  
-    </p>
-
-    <p>
-      MNIST 데이터외에 선형대수 계산을 빨리 하기위해 <a href="http://www.numpy.org/">Numpy</a>라 불리는 파이썬 라이브러리가 필요하다. 
-      Numpy 설치는 <a href="https://www.scipy.org/install.html">여기서</a> 할 수 있다. 
-    </p>
-
-    <p>
-      전체 코드를 보여주기에 앞서 신경망 코드의 핵심적인 특징을 설명하려 한다. 
-      주목할만한 부분은 <code>Network</code> 클래스이다.
-      이를 이용해 신경망을 표현한다. 
-      아래 코드를 이용해 <code>Network</code> 객체를 초기화한다. 
-
-      <pre class="prettyprint linenums:1"><code class="language-python"></code>class Network(object):
+<pre class="prettyprint linenums:1"><code class="language-python"></code>class Network(object):
 def __init__(self, sizes):
   self.num_layers = len(sizes)
   self.sizes = sizes
@@ -1419,122 +1381,103 @@ def __init__(self, sizes):
   self.weights = [np.random.randn(y, x) 
       for x, y in zip(sizes[:-1], sizes[1:])]</code></pre>
 
-      이 코드에서 리스트 <code>sizes</code>는 각 층의 뉴런 수를 나타낸다. 
-      예를 들어, 첫 번째 층에 2개의 뉴런, 두 번째 층에 3개의 뉴런, 마지막 층에 1개의 뉴런을 가진 <code>Network</code> 객체를 만드려면 아래와 같은 코드를 작성하면 된다. 
+이 코드에서 리스트 <code>sizes</code>는 각 층의 뉴런 수를 나타낸다. 
+예를 들어, 첫 번째 층에 2개의 뉴런, 두 번째 층에 3개의 뉴런, 마지막 층에 1개의 뉴런을 가진 <code>Network</code> 객체를 만드려면 아래와 같은 코드를 작성하면 된다. 
 
-      <pre class="prettyprint linenums:1"><code class="language-python"></code>    net = Network([2, 3, 1])</code></pre>
+<pre class="prettyprint linenums:1"><code class="language-python"></code>    net = Network([2, 3, 1])</code></pre>
 
-      <code>Network</code> 객체에서 편향과 가중치는 모두 무작위로 초기화된다. 
-      초기화를 할때 Numpy <code>np.random.randn</code> 함수를 하영하여 평균은 $0$ 이고 표준 편차가 $1$ 인 가우스 분포를 생성한다. 
-      이 무작위 초기화는 확률적 경사 하강 알고리즘의 시작점이 된다. 
-      이 장의 뒷부분에서 가중치와 편향을 초기화하는 더 좋은 방법을 살펴볼 것이다. 
-      하지만 당분간은 이렇게 한다. 
-      <code>Network</code> 초기화 코드는 첫 번째 뉴런층은 입력층이라 가정하고 이 뉴런에 대한 편향 값 설정은 하지 않는다. 
-      편향은 이 후의 층에서 출력을 계산할 때만 사용되기 때문이다. 
-    </p>
+<code>Network</code> 객체에서 편향과 가중치는 모두 무작위로 초기화된다. 
+초기화를 할때 Numpy <code>np.random.randn</code> 함수를 하영하여 평균은 $0$ 이고 표준 편차가 $1$ 인 가우스 분포를 생성한다. 
+이 무작위 초기화는 확률적 경사 하강 알고리즘의 시작점이 된다. 
+이 장의 뒷부분에서 가중치와 편향을 초기화하는 더 좋은 방법을 살펴볼 것이다. 
+하지만 당분간은 이렇게 한다. 
+<code>Network</code> 초기화 코드는 첫 번째 뉴런층은 입력층이라 가정하고 이 뉴런에 대한 편향 값 설정은 하지 않는다. 
+편향은 이 후의 층에서 출력을 계산할 때만 사용되기 때문이다. 
+</p>
 
-    <p>
-      Numpy 행렬의 리스트에 가중치와 편향이 저장된다. 
-      예를 들어 <code>net.weights[1]</code>은 두 번째와 세 번째 뉴런 층을 연결하는 가중치를 저장하는 Numpy 행렬이다. 
-      (파이썬 리스트의 인덱스는 <code>0</code>부터 시작하므로 이는 첫 번째와 두 번째 층 연결이 아니다.) 
-      <code>net.weights[1]</code>을 단순하게 행렬 $w$ 로 표기하자. 
-      $w_jk$ 는 두 번째 층의 $k^{\rm th}$ 번째 뉴런과 세 번째 층의 $j^{\rm th}$ 번째 뉴런을 연결하는 가중치이다. 
-      인덱스 $j$ 와 $k$ 의 순서는 다소 어색할 수 있다. 
-      $j$ 와 $k$ 의 순서를 바꾸는 것이 더 말이 될 수도 있다.
-      이러한 순서를 사용하는 이점은 세 번째 층의 활성 벡터는 다음과 같다는 의미이다. 
-      
-      $$\begin{eqnarray} 
-      a' = \sigma(w a + b).
-      \tag{22}\end{eqnarray}$$
+<p>
+Numpy 행렬의 리스트에 가중치와 편향이 저장된다. 
+예를 들어 <code>net.weights[1]</code>은 두 번째와 세 번째 뉴런 층을 연결하는 가중치를 저장하는 Numpy 행렬이다. 
+(파이썬 리스트의 인덱스는 <code>0</code>부터 시작하므로 이는 첫 번째와 두 번째 층 연결이 아니다.) 
+<code>net.weights[1]</code>을 단순하게 행렬 $w$ 로 표기하자. 
+$w_jk$ 는 두 번째 층의 $k^{\rm th}$ 번째 뉴런과 세 번째 층의 $j^{\rm th}$ 번째 뉴런을 연결하는 가중치이다. 
+인덱스 $j$ 와 $k$ 의 순서는 다소 어색할 수 있다. 
+$j$ 와 $k$ 의 순서를 바꾸는 것이 더 말이 될 수도 있다.
+이러한 순서를 사용하는 이점은 세 번째 층의 활성 벡터는 다음과 같다는 의미이다. 
 
-      위 식은 많은 것을 포함하므로 조금 더 풀어써보자. 
-      $a$ 는 두 번째 층의 뉴런을 활성화하는 벡터이다. 
-      $a'$ 을 얻기 위해 $a$ 에 가중치 행렬 $w$ 를 곱하고 편향 벡터 $b$ 를 더한다. 
-      그런 다음 벡터 $w a +b$ 의 모든 원소에 함수 $\sigma$ 를 적용한다. 
-      (이는 함수 $\sigma$ 를 벡터화(vectorizing)한다고 불린다.) 
-      시그모이드 뉴런의 출력을 계산할 때 식 
-      <span class="tooltip"><b>(22)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          a' = \sigma(w a + b) \nonumber\end{eqnarray}$$
-        </span>
-      </span>
-      는 이전의 규칙 식
-      <span class="tooltip"><b>(4)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          \frac{1}{1+\exp(-\sum_j w_j x_j-b)} \nonumber\end{eqnarray}$$
-        </span>
-      </span>
-      와 같은 결과를 준다는 사실을 쉽게 증명할 수 있다. 
-    </p>
+$$\begin{eqnarray} 
+a' = \sigma(w a + b).
+\tag{22}\end{eqnarray}$$
 
-    <br />
-    <h2>예제</h2>
+위 식은 많은 것을 포함하므로 조금 더 풀어써보자. 
+$a$ 는 두 번째 층의 뉴런을 활성화하는 벡터이다. 
+$a'$ 을 얻기 위해 $a$ 에 가중치 행렬 $w$ 를 곱하고 편향 벡터 $b$ 를 더한다. 
+그런 다음 벡터 $w a +b$ 의 모든 원소에 함수 $\sigma$ 를 적용한다. 
+(이는 함수 $\sigma$ 를 벡터화(vectorizing)한다고 불린다.) 
+시그모이드 뉴런의 출력을 계산할 때 식 
+<span class="tooltip">(22)<span class="tooltiptext">
+$$\begin{eqnarray} 
+a' = \sigma(w a + b) \nonumber\end{eqnarray}$$
+</span></span>는 이전의 규칙 식
+<span class="tooltip">(4)<span class="tooltiptext">
+$$\begin{eqnarray} 
+\frac{1}{1+\exp(-\sum_j w_j x_j-b)} \nonumber\end{eqnarray}$$
+</span></span>와 같은 결과를 준다는 사실을 쉽게 증명할 수 있다. 
+</p>
 
-    <p>
-      <ul>
-        <li>
-          <p>
-            식
-            <span class="tooltip"><b>(22)</b>
-              <span class="tooltiptext">
-                $$\begin{eqnarray} 
-                a' = \sigma(w a + b) \nonumber\end{eqnarray}$$
-              </span>
-            </span>
-            를 원소 형태로 쓰고 시그모이드 뉴런의 출력을 계산하는 규칙 
-            <span class="tooltip"><b>(4)</b>
-              <span class="tooltiptext">
-                $$\begin{eqnarray} 
-                \frac{1}{1+\exp(-\sum_j w_j x_j-b)} \nonumber\end{eqnarray}$$
-              </span>
-            </span>
-            와 같은 결과를 주는 것을 증명해라. 
-          </p>
-        </li>
-      </ul>
-    </p>
+<br />
+<h2>예제</h2>
 
-    <p>
-      이 모든 것을 고려해서 <code>Network</code> 인스턴스(instance)에서 출력을 계산하는 코드를 작성하는 것은 쉽다.
-      시그모이드 함수 정의로 시작하자. 
-      <pre class="prettyprint linenums:1"><code class="language-python"></code>    def sigmoid(z):
+<p>
+<ul>
+<li>
+<p>
+식
+<span class="tooltip">(22)<span class="tooltiptext">
+$$\begin{eqnarray} 
+a' = \sigma(w a + b) \nonumber\end{eqnarray}$$
+</span></span>를 원소 형태로 쓰고 시그모이드 뉴런의 출력을 계산하는 규칙 
+<span class="tooltip">(4)<span class="tooltiptext">
+$$\begin{eqnarray} 
+\frac{1}{1+\exp(-\sum_j w_j x_j-b)} \nonumber\end{eqnarray}$$
+</span></span>와 같은 결과를 주는 것을 증명해라. 
+</p>
+</li>
+</ul>
+</p>
+
+<p>
+이 모든 것을 고려해서 <code>Network</code> 인스턴스(instance)에서 출력을 계산하는 코드를 작성하는 것은 쉽다.
+시그모이드 함수 정의로 시작하자. 
+<pre class="prettyprint linenums:1"><code class="language-python"></code>    def sigmoid(z):
   return 1.0/(1.0+np.exp(-z))</code></pre>
-      입력 $z$ 가 벡터이거나 Numpy array일 때 Numpy는 자동으로 <code>sigmoid</code> 함수를 원소별로 적용해서 벡터 형태로 출력한다. 
-    </p>
+입력 $z$ 가 벡터이거나 Numpy array일 때 Numpy는 자동으로 <code>sigmoid</code> 함수를 원소별로 적용해서 벡터 형태로 출력한다. 
+</p>
 
-    <p>
-      그 다음 <code>Network</code> 클래스에 <code>feedforward</code> 메소드를 추가한다. 
-      신경망에 대한 입력이 주어지면 상응하는 출력
-      <span class="tooltip"><b>*</b>
-        <span class="tooltiptext">
-          블라블라블라
-        </span>
-      </span>
-      을 반환하는 메소드이다. 
-      메소드가 하는 일은 각 층에 식 
-      <span class="tooltip"><b>(22)</b>
-        <span class="tooltiptext">
-          $$\begin{eqnarray} 
-          a' = \sigma(w a + b) \nonumber\end{eqnarray}$$
-        </span>
-      </span>
-      를 적용하는 것이다. 
+<p>
+그 다음 <code>Network</code> 클래스에 <code>feedforward</code> 메소드를 추가한다. 
+신경망에 대한 입력이 주어지면 상응하는 출력
+<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+블라블라블라
+</span></span>을 반환하는 메소드이다. 
+메소드가 하는 일은 각 층에 식 
+<span class="tooltip">(22)<span class="tooltiptext">
+$$\begin{eqnarray} 
+a' = \sigma(w a + b) \nonumber\end{eqnarray}$$
+</span></span>를 적용하는 것이다. 
 
-      <pre class="prettyprint linenums"><code class="language-python">    def feedforward(self, a):
+<pre class="prettyprint linenums"><code class="language-python">    def feedforward(self, a):
 """Return the output of the network if "a" is input."""
 for b, w in zip(self.biases, self.weights):
     a = sigmoid(np.dot(w, a)+b)
     return a</code></pre>
 
-      물론 <code>Network</code> 객체가 주로 하는 일은 학습을 하는 것이다. 
-      그러기 위해서 확률적 경사 하강을 구현하는 <code>SGD</code> 메소드를 작성하자. 
-      아래에 코드가 있다. 
-      이해가 어려운 부분이 몇 군데 있지만 아래 부분에서 세세하게 다루겠다. 
+물론 <code>Network</code> 객체가 주로 하는 일은 학습을 하는 것이다. 
+그러기 위해서 확률적 경사 하강을 구현하는 <code>SGD</code> 메소드를 작성하자. 
+아래에 코드가 있다. 
+이해가 어려운 부분이 몇 군데 있지만 아래 부분에서 세세하게 다루겠다. 
 
-
-      <pre class="prettyprint linenums"><code class="language-python">    def SGD(self, training_data, epochs, mini_batch_size, eta,
+<pre class="prettyprint linenums"><code class="language-python">    def SGD(self, training_data, epochs, mini_batch_size, eta,
       test_data=None):
   """Train the neural network using mini-batch stochastic
   gradient descent.  The "training_data" is a list of tuples
@@ -1559,22 +1502,22 @@ for b, w in zip(self.biases, self.weights):
       else:
           print "Epoch {0} complete".format(j)</code></pre>
       
-      <code>training_data</code>는 학습 데이터 입력과 상응하는 출력을 나타내는 튜플 <code>(x, y)</code>의 리스트이다. 
-      변수 <code>epochs</code>와 <code>mini_batch_size</code>는 학습을 진행하는 세대의 수와 표본을 추출할 때 사용하는 미니 배치의 크기를 의미한다. 
-      <code>eta</code>는 학습률 $\eta$이다. 
-      옵션 인자 <code>test_data</code>가 주어지면 프로그램은 학습 세대 마다 신경망을 평가하고, 부분적인 진행 상황을 출력한다. 
-      이는 진행 상황을 보는데 유용하지만 성능은 상당히 느려진다. 
-    </p>
+<code>training_data</code>는 학습 데이터 입력과 상응하는 출력을 나타내는 튜플 <code>(x, y)</code>의 리스트이다. 
+변수 <code>epochs</code>와 <code>mini_batch_size</code>는 학습을 진행하는 세대의 수와 표본을 추출할 때 사용하는 미니 배치의 크기를 의미한다. 
+<code>eta</code>는 학습률 $\eta$이다. 
+옵션 인자 <code>test_data</code>가 주어지면 프로그램은 학습 세대 마다 신경망을 평가하고, 부분적인 진행 상황을 출력한다. 
+이는 진행 상황을 보는데 유용하지만 성능은 상당히 느려진다. 
+</p>
 
-    <p>
-      코드는 다음처럼 동작한다. 
-      각 세대마다 학습 데이터를 무작위로 섞으면서 시작한다. 
-      그리고 적절한 크기의 미니 배치로 나눈다. 
-      이는 학습 데이터에서 무작위로 표본을 추출하는 쉬운 방법이다. 
-      코드 <code>self.update_mini_batch(mini_batch, eta)</code> 부분이 이를 실행하며 <code>mini_batch</code>에서 학습 데이터를 사용하여 경사 하강의 반복에 따라 신경망의 가중치와 편향을 갱신한다. 
-      <code>update_mini_batch</code> 메소드에 대한 코드는 아래와 같다. 
+<p>
+코드는 다음처럼 동작한다. 
+각 세대마다 학습 데이터를 무작위로 섞으면서 시작한다. 
+그리고 적절한 크기의 미니 배치로 나눈다. 
+이는 학습 데이터에서 무작위로 표본을 추출하는 쉬운 방법이다. 
+코드 <code>self.update_mini_batch(mini_batch, eta)</code> 부분이 이를 실행하며 <code>mini_batch</code>에서 학습 데이터를 사용하여 경사 하강의 반복에 따라 신경망의 가중치와 편향을 갱신한다. 
+<code>update_mini_batch</code> 메소드에 대한 코드는 아래와 같다. 
 
-      <pre class="prettyprint linenums"><code class="language-python">    def update_mini_batch(self, mini_batch, eta):
+<pre class="prettyprint linenums"><code class="language-python">    def update_mini_batch(self, mini_batch, eta):
   """Update the network's weights and biases by applying
   gradient descent using backpropagation to a single mini batch.
   The "mini_batch" is a list of tuples "(x, y)", and "eta"
@@ -1590,35 +1533,35 @@ for b, w in zip(self.biases, self.weights):
   self.biases = [b-(eta/len(mini_batch))*nb 
                   for b, nb in zip(self.biases, nabla_b)]</code></pre>
 
-      아래의 코드가 대부분의 작업을 수행한다. 
-      <pre class="prettyprint linenums"><code class="language-python">            delta_nabla_b, delta_nabla_w = self.backprop(x, y)</code></pre>
+아래의 코드가 대부분의 작업을 수행한다. 
+<pre class="prettyprint linenums"><code class="language-python">            delta_nabla_b, delta_nabla_w = self.backprop(x, y)</code></pre>
 
-      이 코드는 역전파 알고리즘(backpropagation algorithm)을 호출한다. 
-      이 알고리즘은 비용 함수의 경사를 빠르게 계산한다. 
-      <code>update_mini_batch</code>는 <code>mini_batch</code>에서 모든 학습 데이터에 대한 경사를 계산한다. 그리고 <code>self.weights</code>와 <code>self.biases</code>를 갱신한다. 
-    </p>
+이 코드는 역전파 알고리즘(backpropagation algorithm)을 호출한다. 
+이 알고리즘은 비용 함수의 경사를 빠르게 계산한다. 
+<code>update_mini_batch</code>는 <code>mini_batch</code>에서 모든 학습 데이터에 대한 경사를 계산한다. 그리고 <code>self.weights</code>와 <code>self.biases</code>를 갱신한다. 
+</p>
 
-    <p>
-      <code>self.backprop</code>에 대한 코드를 지금 당장 보여주지는 않을 것이다. 
-      다음 장에서 역전파 알고리즘이 어떻게 동작하는지 공부하고 <code>self.backprop</code>에 대한 코드를 추가해보자. 
-      당분간은 위에서 말한대로 역전파 알고리즘이 동작한다고 가정하고 학습 데이터 $x$와 연관된 비용에 대한 경사를 반환한다.
-    </p>
+<p>
+<code>self.backprop</code>에 대한 코드를 지금 당장 보여주지는 않을 것이다. 
+다음 장에서 역전파 알고리즘이 어떻게 동작하는지 공부하고 <code>self.backprop</code>에 대한 코드를 추가해보자. 
+당분간은 위에서 말한대로 역전파 알고리즘이 동작한다고 가정하고 학습 데이터 $x$와 연관된 비용에 대한 경사를 반환한다.
+</p>
 
-    <p>
-      위에서 생략한 문서화 문자열을 포함한 전체 프로그램을 보자. 
-      <code>self.backprop</code>을 제외하고 프로그램에 대해 설명해보자. 
-      앞서 말한 <code>self.SGD</code>와 <code>self.update_mini_batch</code>가 대부분의 일을 한다. 
-      <code>self.backprop</code> 메소드는 경사를 계산하는데 도움을 주기 위해 다른 함수들을 이용한다. 
-      $\sigma$ 함수의 도함수를 계산하는 <code>sigmoid_prime</code>과 여기서 설명하지 않을 <code>self.cost_derivative</code>가 있다. 
-      코드와 문서화 문자열을 보면 핵심을 자세히 알 수 있다. 
-      다음 장에서 자세히 살펴보겠다. 
-      프로그램의 길이가 길어 보이지만 코드 중 대부분은 이해를 돕기위한 문서화 문자열이다. 
-      사실 프로그램은 여백과 주석을 제외하고 단지 74줄 밖에 되지 않는다. 
-      모든 코드는 Github에서 볼 수 있다. 
-    </p>
+<p>
+위에서 생략한 문서화 문자열을 포함한 전체 프로그램을 보자. 
+<code>self.backprop</code>을 제외하고 프로그램에 대해 설명해보자. 
+앞서 말한 <code>self.SGD</code>와 <code>self.update_mini_batch</code>가 대부분의 일을 한다. 
+<code>self.backprop</code> 메소드는 경사를 계산하는데 도움을 주기 위해 다른 함수들을 이용한다. 
+$\sigma$ 함수의 도함수를 계산하는 <code>sigmoid_prime</code>과 여기서 설명하지 않을 <code>self.cost_derivative</code>가 있다. 
+코드와 문서화 문자열을 보면 핵심을 자세히 알 수 있다. 
+다음 장에서 자세히 살펴보겠다. 
+프로그램의 길이가 길어 보이지만 코드 중 대부분은 이해를 돕기위한 문서화 문자열이다. 
+사실 프로그램은 여백과 주석을 제외하고 단지 74줄 밖에 되지 않는다. 
+모든 코드는 Github에서 볼 수 있다. 
+</p>
 
-    <p>
-      <pre class="prettyprint linenums"><code class="language-python">"""
+<p>
+<pre class="prettyprint linenums"><code class="language-python">"""
 network.py
 ~~~~~~~~~~
 
@@ -1759,44 +1702,44 @@ return 1.0/(1.0+np.exp(-z))
 def sigmoid_prime(z):
 """Derivative of the sigmoid function."""
 return sigmoid(z)*(1-sigmoid(z))</code></pre>
-    </p>
+</p>
 
-    <p>
-      프로그램이 손글씨 숫자를 얼머나 잘 인식하는가? 
-      먼저 MNIST 데이터를 로딩부터 시작해보자. 
-      아래와 같은 <code>mnist_loader.py</code> 프로그램을 이용할 것이다. 
-      파이썬 쉘에 다음의 명령어를 입력한다. 
-      <pre class="prettyprint linenums"><code class="language-python">>>> import mnist_loader
+<p>
+프로그램이 손글씨 숫자를 얼머나 잘 인식하는가? 
+먼저 MNIST 데이터를 로딩부터 시작해보자. 
+아래와 같은 <code>mnist_loader.py</code> 프로그램을 이용할 것이다. 
+파이썬 쉘에 다음의 명령어를 입력한다. 
+<pre class="prettyprint linenums"><code class="language-python">>>> import mnist_loader
 >>> training_data, validation_data, test_data = \
 ... mnist_loader.load_data_wrapper()</code></pre>
 
-      물론 별개의 파이썬 프로그램을 사용해도 된다. 
-      하지만 파이썬 쉘에서 하는 것이 아마 더욱 쉬울 것이다. 
-    </p>
+물론 별개의 파이썬 프로그램을 사용해도 된다. 
+하지만 파이썬 쉘에서 하는 것이 아마 더욱 쉬울 것이다. 
+</p>
 
-    <p>
-      MNIST 데이터를 로딩한 후 30개의 은닉 뉴런으로 <code>Network</code>를 구성할 것이다. 
-      위에 있는 파이썬 프로그램 <code>Network</code>을 임포트해서 이를 구현할 것이다. 
-      <pre class="prettyprint linenums"><code class="language-python">>>> import network
+<p>
+MNIST 데이터를 로딩한 후 30개의 은닉 뉴런으로 <code>Network</code>를 구성할 것이다. 
+위에 있는 파이썬 프로그램 <code>Network</code>을 임포트해서 이를 구현할 것이다. 
+<pre class="prettyprint linenums"><code class="language-python">>>> import network
 >>> net = network.Network([784, 30, 10])</code></pre>
 
-      마지막으로 확률적 경사 하강을 이용해 MNIST 학습 데이터를 30 세대 동안 미니 배치 크기 10과 학습률 $\eta = 3.0$ 으로 학습한다. 
-      <pre class="prettyprint linenums"><code class="language-python">>>> net.SGD(training_data, 30, 10, 3.0, test_data=test_data)</code></pre>
-    </p>
+마지막으로 확률적 경사 하강을 이용해 MNIST 학습 데이터를 30 세대 동안 미니 배치 크기 10과 학습률 $\eta = 3.0$ 으로 학습한다. 
+<pre class="prettyprint linenums"><code class="language-python">>>> net.SGD(training_data, 30, 10, 3.0, test_data=test_data)</code></pre>
+</p>
 
-    <p>
-      위에서 본 것처럼 코드를 실행하면 실행하는데 약간의 시간이 걸린다. 
-      2015년 기분의 전형적인 컴퓨터 기계에서 동작하는데 약 몇 분이 소요된다. 
-      프로그램을 구동하고 계속해서 책을 읽으며 출력을 확인할 것을 추천한다. 
-      시간이 없다면 세대 수를 줄이거나 은닉 뉴런의 수를 줄이거나 혹은 학습 데이터 중 일부를 사용하여 속도를 높일 수 있다. 
-      상업적 용도로 이용되는 코드는 훨씬 더 빠르다. 
-      위의 파이썬 코드는 신경망이 어떻게 동작하는지 이해를 돕기위해 작성되어 높은 성능을 보이지 않는다. 
-      물론 한 번 신경망을 학습시키면 어떤 계산 플랫폼에서도 매우 빠르게 동작한다. 
-      예를 들어 일단 신경망에 대한 가중치와 편향을 학습했다면 웹 브라우저의 Javascript나 모바일 장치의 어플리케이션에서 쉽게 동작할 수 있다. 
-      어쨌든 신경망의 학습 진행 중 출력의 일부가 아래에 있다. 
-      보다시피 한 세대가 후에 $10,000$ 중 $9,129$ 에 도달했고 숫자는 점점 증가한다. 
+<p>
+위에서 본 것처럼 코드를 실행하면 실행하는데 약간의 시간이 걸린다. 
+2015년 기분의 전형적인 컴퓨터 기계에서 동작하는데 약 몇 분이 소요된다. 
+프로그램을 구동하고 계속해서 책을 읽으며 출력을 확인할 것을 추천한다. 
+시간이 없다면 세대 수를 줄이거나 은닉 뉴런의 수를 줄이거나 혹은 학습 데이터 중 일부를 사용하여 속도를 높일 수 있다. 
+상업적 용도로 이용되는 코드는 훨씬 더 빠르다. 
+위의 파이썬 코드는 신경망이 어떻게 동작하는지 이해를 돕기위해 작성되어 높은 성능을 보이지 않는다. 
+물론 한 번 신경망을 학습시키면 어떤 계산 플랫폼에서도 매우 빠르게 동작한다. 
+예를 들어 일단 신경망에 대한 가중치와 편향을 학습했다면 웹 브라우저의 Javascript나 모바일 장치의 어플리케이션에서 쉽게 동작할 수 있다. 
+어쨌든 신경망의 학습 진행 중 출력의 일부가 아래에 있다. 
+보다시피 한 세대가 후에 $10,000$ 중 $9,129$ 에 도달했고 숫자는 점점 증가한다. 
 
-      <pre class="prettyprint linenums"><code class="language-python">Epoch 0: 9129 / 10000
+<pre class="prettyprint linenums"><code class="language-python">Epoch 0: 9129 / 10000
 Epoch 1: 9295 / 10000
 Epoch 2: 9348 / 10000
 ...
@@ -1804,44 +1747,42 @@ Epoch 27: 9528 / 10000
 Epoch 28: 9542 / 10000
 Epoch 29: 9534 / 10000</code></pre>
 
-      즉, 학습된 신경망은 약 $95%$ 의 분류률을 보인다. 
-      28번 째 세대에서 $95.42%$ 로 최고점을 찍는다. 
-      첫 번째 시도에 꽤나 큰 성과이다. 
-      하지만 코드를 실행하면 책의 결과와 완전히 똑같이 않을 것이다. 
-      무작위로 선택하여 다른 가중치와 편향을 이용하여 신경망을 초기화하기 때문이다. 
-      이 장에서 결과를 만들기 위해 세 번의 결과 중 가장 좋은 것을 가져왔다.
-    </p>
+즉, 학습된 신경망은 약 $95%$ 의 분류률을 보인다. 
+28번 째 세대에서 $95.42%$ 로 최고점을 찍는다. 
+첫 번째 시도에 꽤나 큰 성과이다. 
+하지만 코드를 실행하면 책의 결과와 완전히 똑같이 않을 것이다. 
+무작위로 선택하여 다른 가중치와 편향을 이용하여 신경망을 초기화하기 때문이다. 
+이 장에서 결과를 만들기 위해 세 번의 결과 중 가장 좋은 것을 가져왔다.
+</p>
 
-    <p>
-      위의 실험으로 돌아가 은닉층의 뉴런의 수를 $100$ 개로 바꿔보자. 
-      앞서 말했듯이 코드를 실행하면 시간이 꽤 걸린다. 
-      (내 컴퓨터에서는 각 학습 세대마다 수십초의 시간이 걸렸다.)
-      그래서 코드를 실행시켜 놓고 계속해서 책을 읽어 나가면 된다. 
+<p>
+위의 실험으로 돌아가 은닉층의 뉴런의 수를 $100$ 개로 바꿔보자. 
+앞서 말했듯이 코드를 실행하면 시간이 꽤 걸린다. 
+(내 컴퓨터에서는 각 학습 세대마다 수십초의 시간이 걸렸다.)
+그래서 코드를 실행시켜 놓고 계속해서 책을 읽어 나가면 된다. 
 
-      <pre class="prettyprint linenums"><code class="language-python">>>> net = network.Network([784, 100, 10])
+<pre class="prettyprint linenums"><code class="language-python">>>> net = network.Network([784, 100, 10])
 >>> net.SGD(training_data, 30, 10, 3.0, test_data=test_data)</code></pre>
 
-      아니나 다를까 이는 결과를 $96.59%% 까지 향상시켰다. 
-      적어도 이 경우에 은닉층에서 더 많은 수의 뉴런을 사용해서 좋은 결과를 얻을 수 있다. 
-      <span class="tooltip"><b>*</b>
-        <span class="tooltiptext">
-          블라블라블라
-        </span>
-      </span>
-    </p>
+아니나 다를까 이는 결과를 $96.59%% 까지 향상시켰다. 
+적어도 이 경우에 은닉층에서 더 많은 수의 뉴런을 사용해서 좋은 결과를 얻을 수 있다. 
+<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+블라블라블라
+</span></span>
+</p>
 
-    <p>
-      물론 이러한 정확도를 얻기 위해서는 학습 세대의 수, 미니 배치 크기, 학습률 $\eta$를 특정 값으로 선택해야한다. 
-      위에서 말한 것처럼 이는 신경망에 대한 하이퍼파라미터로 알려져 있고, 학습 알고리즘이 배우는 매개 변수인 가중치와 편향과는 구별된다. 
-      하이퍼파라미터를 적절히 선택하지 못하면 결과는 나빠진다. 
-      예를 들어, 학습률 $\eta = 0.001$ 로 설정했다고 가정하자. 
+<p>
+물론 이러한 정확도를 얻기 위해서는 학습 세대의 수, 미니 배치 크기, 학습률 $\eta$를 특정 값으로 선택해야한다. 
+위에서 말한 것처럼 이는 신경망에 대한 하이퍼파라미터로 알려져 있고, 학습 알고리즘이 배우는 매개 변수인 가중치와 편향과는 구별된다. 
+하이퍼파라미터를 적절히 선택하지 못하면 결과는 나빠진다. 
+예를 들어, 학습률 $\eta = 0.001$ 로 설정했다고 가정하자. 
 
-      <pre class="prettyprint linenums"><code class="language-python">>>> net = network.Network([784, 100, 10])
+<pre class="prettyprint linenums"><code class="language-python">>>> net = network.Network([784, 100, 10])
 >>> net.SGD(training_data, 30, 10, 0.001, test_data=test_data)</code></pre>
 
-      결과는 썩 좋지 못하다. 
+결과는 썩 좋지 못하다. 
 
-      <pre class="prettyprint linenums"><code class="language-python">Epoch 0: 1139 / 10000
+<pre class="prettyprint linenums"><code class="language-python">Epoch 0: 1139 / 10000
 Epoch 1: 1136 / 10000
 Epoch 2: 1135 / 10000
 ...
@@ -1849,27 +1790,27 @@ Epoch 27: 2101 / 10000
 Epoch 28: 2123 / 10000
 Epoch 29: 2142 / 10000</code></pre>
 
-      그러나 신경망의 성능은 더디지만 시간이 지날수록 좋아진다. 
-      이는 학습률을 $\eta = 0.01$ 과 같이 올려야 한다는 것을 암시한다. 
-      그렇게 하면 더 좋은 결과를 얻을 수 있고, 이는 다시 학습률을 올릴 것을 의미한다. 
-      (변화가 성능을 향상시키면 더 시도해보자.) 
-      몇 번 반복해서 하면, 학습률은 결국 $\eta = 1.0$ 과 같이 될 것이다. 
-      (아마도 $3.0$이 적절할 것이다.) 
-      이 학습률 값은 이전에 한 실험에서 본 값과 비슷하다. 
-      따라서 하이퍼파라미터를 잘 못 선택했더라도 하이퍼파라미터 선택을 바꿀 정보는 주어진다. 
-    </p>
+그러나 신경망의 성능은 더디지만 시간이 지날수록 좋아진다. 
+이는 학습률을 $\eta = 0.01$ 과 같이 올려야 한다는 것을 암시한다. 
+그렇게 하면 더 좋은 결과를 얻을 수 있고, 이는 다시 학습률을 올릴 것을 의미한다. 
+(변화가 성능을 향상시키면 더 시도해보자.) 
+몇 번 반복해서 하면, 학습률은 결국 $\eta = 1.0$ 과 같이 될 것이다. 
+(아마도 $3.0$이 적절할 것이다.) 
+이 학습률 값은 이전에 한 실험에서 본 값과 비슷하다. 
+따라서 하이퍼파라미터를 잘 못 선택했더라도 하이퍼파라미터 선택을 바꿀 정보는 주어진다. 
+</p>
 
-    <p>
-      일반적으로 신경망을 디버깅하는 것은 꽤나 힘든 문제이다. 
-      하이퍼파라미터의 초기 선택이 무작위한 선택보다 좋은 결과를 내지 못할 때 특히 그렇다. 
-      이전에 봤던 신경망 구조와 같이 은닉층에 $30$ 개의 뉴런이 있지만 학습률을 $\eta = 100.0$으로 바꿔 보자. 
-      
-      <pre class="prettyprint linenums"><code class="language-python">>>> net = network.Network([784, 30, 10])
+<p>
+일반적으로 신경망을 디버깅하는 것은 꽤나 힘든 문제이다. 
+하이퍼파라미터의 초기 선택이 무작위한 선택보다 좋은 결과를 내지 못할 때 특히 그렇다. 
+이전에 봤던 신경망 구조와 같이 은닉층에 $30$ 개의 뉴런이 있지만 학습률을 $\eta = 100.0$으로 바꿔 보자. 
+
+<pre class="prettyprint linenums"><code class="language-python">>>> net = network.Network([784, 30, 10])
 >>> net.SGD(training_data, 30, 10, 100.0, test_data=test_data)</code></pre>
 
-      이 점에서 우리는 너무 멀리 갔고 학습률은 너무 높다. 
+이 점에서 우리는 너무 멀리 갔고 학습률은 너무 높다. 
 
-      <pre class="prettyprint linenums"><code class="language-python">Epoch 0: 1009 / 10000
+<pre class="prettyprint linenums"><code class="language-python">Epoch 0: 1009 / 10000
 Epoch 1: 1009 / 10000
 Epoch 2: 1009 / 10000
 Epoch 3: 1009 / 10000
@@ -1878,54 +1819,54 @@ Epoch 27: 982 / 10000
 Epoch 28: 982 / 10000
 Epoch 29: 982 / 10000</code></pre>
 
-      이 문제를 처음 봤다고 상상해보자. 
-      물론 이 전의 실험에서 본 것처럼 우리가 해야할 것은 학습률을 감소시키는 것이다. 
-      하지만 처음으로 이 문제를 마주쳤다면 출력에서 어떻게 해야할지 알려줄 수 있는 것이 많이 없다. 
-      학습률에 대해 고민 할 수도 있지만 신경망의 다른 모든 면들을 생각할지도 모른다. 
-      신경망이 학습하는 것을 어렵게 만드는 방법으로 가중치와 편향을 초기화했다고 생각할 수도 있다. 
-      또는 의미있는 학습을 하기 위한 학습 데이터가 충분하지 못했다고 생각할 수도 있다. 
-      충분한 세대동안 실행하지 않았나? 
-      또는 이 구조를 가지는 신경망은 손글씨 숫자를 인식하기 위해 학습하는 것이 불가능한가? 
-      학습률이 너무 낮은 것일까? 
-      아니면 학습률이 너무 높은 걸까?
-      처음으로 이 문제를 마주하면 확신할 수 없다. 
-    </p>
+이 문제를 처음 봤다고 상상해보자. 
+물론 이 전의 실험에서 본 것처럼 우리가 해야할 것은 학습률을 감소시키는 것이다. 
+하지만 처음으로 이 문제를 마주쳤다면 출력에서 어떻게 해야할지 알려줄 수 있는 것이 많이 없다. 
+학습률에 대해 고민 할 수도 있지만 신경망의 다른 모든 면들을 생각할지도 모른다. 
+신경망이 학습하는 것을 어렵게 만드는 방법으로 가중치와 편향을 초기화했다고 생각할 수도 있다. 
+또는 의미있는 학습을 하기 위한 학습 데이터가 충분하지 못했다고 생각할 수도 있다. 
+충분한 세대동안 실행하지 않았나? 
+또는 이 구조를 가지는 신경망은 손글씨 숫자를 인식하기 위해 학습하는 것이 불가능한가? 
+학습률이 너무 낮은 것일까? 
+아니면 학습률이 너무 높은 걸까?
+처음으로 이 문제를 마주하면 확신할 수 없다. 
+</p>
 
-    <p>
-      신경망을 디버깅하는 것은 중요하고 일반적인 프로그래밍 처럼 디버깅을 하는데 기술이 필요하다는 것이 이 문제를 벗어나기 위한 교훈이다. 
-      신경망에서 좋은 결과를 얻으려면 디버깅 기술을 배워야 한다. 
-      더 일반적으로 좋은 하이퍼파라미터와 좋은 구조를 선택하는 방법을 스스로 개발해야한다. 
-      위에서 하이퍼파라미터를 선택한 방법을 포함하여 책 전반에 걸쳐 이러한 내용을 상세히 다루겠다. 
-    </p>
+<p>
+신경망을 디버깅하는 것은 중요하고 일반적인 프로그래밍 처럼 디버깅을 하는데 기술이 필요하다는 것이 이 문제를 벗어나기 위한 교훈이다. 
+신경망에서 좋은 결과를 얻으려면 디버깅 기술을 배워야 한다. 
+더 일반적으로 좋은 하이퍼파라미터와 좋은 구조를 선택하는 방법을 스스로 개발해야한다. 
+위에서 하이퍼파라미터를 선택한 방법을 포함하여 책 전반에 걸쳐 이러한 내용을 상세히 다루겠다. 
+</p>
 
-    <br />
-    <h2>예제</h2>
+<br />
+<h2>예제</h2>
 
-    <p>
-      <ul>
-        <li>
-          <p>
-            단 두 개의 층을 가지는 신경망을 만들어라. 
-            입력과 출력 층을 가지며 각각 $784$ 개와 $10$ 개의 뉴런을 가진다.  
-            은닉층은 가지지 않는다. 
-            확률적 경사 하강을 이용하여 신경망을 학습시켜라. 
-            얻을 수 있는 분류의 정확도는 얼마인가? 
-          </p>
-        </li>
-      </ul>
-    </p>
+<p>
+<ul>
+<li>
+<p>
+단 두 개의 층을 가지는 신경망을 만들어라. 
+입력과 출력 층을 가지며 각각 $784$ 개와 $10$ 개의 뉴런을 가진다.  
+은닉층은 가지지 않는다. 
+확률적 경사 하강을 이용하여 신경망을 학습시켜라. 
+얻을 수 있는 분류의 정확도는 얼마인가? 
+</p>
+</li>
+</ul>
+</p>
 
-    <p>
-      앞서 MNIST 데이터를 로드하는 방법을 상세히 다루지 않고 넘어갔다. 
-      이는 꽤 직관적이다. 
-      완성도를 위해 아래 코드가 있다. 
-      MNIST 데이터를 저장하는데 사용된 데이터 구조는 문서화 문자열에 표기되어있다. 
-      이는 Numpy <code>ndarray</code> 객체의 튜플과 리스트이다. 
-      (<code>ndarrays</code>를 벡터로 생각해도 된다.)
-    </p>
+<p>
+앞서 MNIST 데이터를 로드하는 방법을 상세히 다루지 않고 넘어갔다. 
+이는 꽤 직관적이다. 
+완성도를 위해 아래 코드가 있다. 
+MNIST 데이터를 저장하는데 사용된 데이터 구조는 문서화 문자열에 표기되어있다. 
+이는 Numpy <code>ndarray</code> 객체의 튜플과 리스트이다. 
+(<code>ndarrays</code>를 벡터로 생각해도 된다.)
+</p>
 
-    <p>
-      <pre class="prettyprint linenums"><code class="language-python">"""
+<p>
+<pre class="prettyprint linenums"><code class="language-python">"""
 mnist_loader
 ~~~~~~~~~~~~ 
 
@@ -2011,232 +1952,232 @@ e = np.zeros((10, 1))
 e[j] = 1.0
 return e</code></pre>
 
-      작성한 프로그램은 꽤 좋은 결과를 낸다고 앞서 말했다. 
-      이는 무엇을 의미할까? 
-      무엇과 비교해서 좋다는 말일까? 
-      성능이 좋다는 의미를 이해하기 위해 비교할 만한 간단한 (신경망이 아닌) 기준 테스트를 하는 것이 유용하다. 
-      물론 가장 간단한 기준점은 무작위로 숫자를 예측하는 것이다. 
-      그것은 약 $10%$ 의 시간이 된다. 우리는 그것보다 훨씬 잘하고 있다.  
-    </p>
+작성한 프로그램은 꽤 좋은 결과를 낸다고 앞서 말했다. 
+이는 무엇을 의미할까? 
+무엇과 비교해서 좋다는 말일까? 
+성능이 좋다는 의미를 이해하기 위해 비교할 만한 간단한 (신경망이 아닌) 기준 테스트를 하는 것이 유용하다. 
+물론 가장 간단한 기준점은 무작위로 숫자를 예측하는 것이다. 
+그것은 약 $10%$ 의 시간이 된다. 우리는 그것보다 훨씬 잘하고 있다.  
+</p>
 
-    <p>
-      조금 더 의미있는 기준점은 무엇일까? 
-      간단한 아이디어를 적용해보자. 
-      이미지가 얼마나 어두운지 살펴보자. 
-      예를 들어 $2$ 의 이미지는 $1$ 의 이미지보다 조금 더 어두울 것이다. 
-      다음의 예시에서 보는 것처럼 더 많은 픽셀이 검은색이기 때문이다. 
+<p>
+조금 더 의미있는 기준점은 무엇일까? 
+간단한 아이디어를 적용해보자. 
+이미지가 얼마나 어두운지 살펴보자. 
+예를 들어 $2$ 의 이미지는 $1$ 의 이미지보다 조금 더 어두울 것이다. 
+다음의 예시에서 보는 것처럼 더 많은 픽셀이 검은색이기 때문이다. 
 
-      <br /><br />
-      <img class="contentimg" src="./images/chapter1/mnist_2_and_1.png" alt="digits" width="200px">
-      <br /><br />
+<br /><br />
+<img class="contentimg" src="./images/chapter1/mnist_2_and_1.png" alt="digits" width="200px">
+<br /><br />
 
-      이는 각 숫자 $0, 1, 2,\ldots, 9$ 에 대한 어두운 정도의 평균을 학습데이터를 사용해 계산하라고 제안한다. 
-      새로운 이미지가 주어지면 이미지가 얼마나 어두운지 계산하고 어떤 수가 가장 가까운 평균값을 가지는지 추측한다. 
-      이는 간단한 과정이고 코드를 작성하기쉽기 때문에 코드를 보여주지는 않을 것이다. 
-      만약 코드를 보고 싶으면 <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/src/mnist_average_darkness.py">Github 저장소</a>에서 볼 수 있다. 
-      무작위로 추측하는 방법보다 개선할 수 있는 방법이다. $10,000$ 개의 테스트 이미지 중 $2,225$ 개를 맞출 수 있다. 즉 정확도는 $22.25%$ 이다. 
-    </p>
+이는 각 숫자 $0, 1, 2,\ldots, 9$ 에 대한 어두운 정도의 평균을 학습데이터를 사용해 계산하라고 제안한다. 
+새로운 이미지가 주어지면 이미지가 얼마나 어두운지 계산하고 어떤 수가 가장 가까운 평균값을 가지는지 추측한다. 
+이는 간단한 과정이고 코드를 작성하기쉽기 때문에 코드를 보여주지는 않을 것이다. 
+만약 코드를 보고 싶으면 <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/src/mnist_average_darkness.py">Github 저장소</a>에서 볼 수 있다. 
+무작위로 추측하는 방법보다 개선할 수 있는 방법이다. $10,000$ 개의 테스트 이미지 중 $2,225$ 개를 맞출 수 있다. 즉 정확도는 $22.25%$ 이다. 
+</p>
 
-    <p>
-      $20$ 에서 $50%$ 의 정확도를 가지는 다른 아이디어를 찾는 것은 어렵지 않다. 
-      조금만 찾아보면 $50%% 가 넘는 것을 금방 찾을 수 있다. 
-      하지만 더 높은 정확도를 얻으려면 잘 알려진 머신 러닝 알고리즘을 사용해야 한다. 
-      가장 잘 알려진 알고리즘 중 하나인 서포트 벡터 머신(support vector machine, SVM)을 사용해보자. 
-      SVM을 처음보더라도 걱정하지 않아도 된다. SVM이 어떻게 동작하는지 자세히 이해할 필요는 없다. 
-      대신 <a href="https://scikit-learn.org/stable/">scikit-lear</a>n이라 불리는 파이썬 라이브러리를 사용할 것이다. 
-      이는 <a href="https://www.csie.ntu.edu.tw/~cjlin/libsvm/">LIBSVM</a>이라 알려진 SVM에 대한 C 기반 알고리즘을 위한 파이썬 인터페이스를 제공한다. 
-    </p>
+<p>
+$20$ 에서 $50%$ 의 정확도를 가지는 다른 아이디어를 찾는 것은 어렵지 않다. 
+조금만 찾아보면 $50%% 가 넘는 것을 금방 찾을 수 있다. 
+하지만 더 높은 정확도를 얻으려면 잘 알려진 머신 러닝 알고리즘을 사용해야 한다. 
+가장 잘 알려진 알고리즘 중 하나인 서포트 벡터 머신(support vector machine, SVM)을 사용해보자. 
+SVM을 처음보더라도 걱정하지 않아도 된다. SVM이 어떻게 동작하는지 자세히 이해할 필요는 없다. 
+대신 <a href="https://scikit-learn.org/stable/">scikit-lear</a>n이라 불리는 파이썬 라이브러리를 사용할 것이다. 
+이는 <a href="https://www.csie.ntu.edu.tw/~cjlin/libsvm/">LIBSVM</a>이라 알려진 SVM에 대한 C 기반 알고리즘을 위한 파이썬 인터페이스를 제공한다. 
+</p>
 
-    <p>
-      기본 설정 값을 이용해 scikit-learn의 SVM 분류기를 실행하면 $10,000$ 개의 테스트 이미지 중 $9,435$ 개를 맞춘다. 
-      (코드는 <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/src/mnist_svm.py">여기</a>서 이용할 수 있다.) 
-      이미지가 얼마나 어두운지에 따라 분류하는 방법보다 훨씬 큰 성능 개선을 보인다. 
-      이는 SVM의 성능이 신경망과 비슷하며 약간 안좋을 뿐이다. 
-      책의 뒷부분에서 SVM보다 훨씬 뛰어난 성능을 가지는 신경망을 개선시키는 새로운 기술을 도입할 것이다. 
-    </p>
+<p>
+기본 설정 값을 이용해 scikit-learn의 SVM 분류기를 실행하면 $10,000$ 개의 테스트 이미지 중 $9,435$ 개를 맞춘다. 
+(코드는 <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/src/mnist_svm.py">여기</a>서 이용할 수 있다.) 
+이미지가 얼마나 어두운지에 따라 분류하는 방법보다 훨씬 큰 성능 개선을 보인다. 
+이는 SVM의 성능이 신경망과 비슷하며 약간 안좋을 뿐이다. 
+책의 뒷부분에서 SVM보다 훨씬 뛰어난 성능을 가지는 신경망을 개선시키는 새로운 기술을 도입할 것이다. 
+</p>
 
-    <p>
-      하지만 이것이 이야기의 끝은 아니다. 
-      SVM에 대한 scikit-learn의 기본 설정값의 결과가 $10,000$ 개 중 $9,435$ 의 결과이다. 
-      SVM은 조정할 수 있는 매개 변수가 많으며 이 좋은 성능을 향상시키는 매개 변수를 탐색할 수 있다. 
-      여기서 이 탐색을 상세히 다루지 않지만 더 알고싶다면 <a href="https://peekaboo-vision.blogspot.com/">안드레아스 뮐러</a>(Andreas Muller)의 <a href="https://peekaboo-vision.blogspot.com/2010/09/mnist-for-ever.html">블로그 글</a>을 한 번 보자.
-      뮐로는 SVM 매개변수 최적화를 통해 성능을 $98.5%$의 정확도로 높였다. 
-      즉, 잘 설정된 SVM은 70 개 중 한 개의 오차만 발생시킨다. 
-      이는 엄청나다. 
-      신경망은 더 좋은 성능을 낼 수 있을까? 
-    </p>
+<p>
+하지만 이것이 이야기의 끝은 아니다. 
+SVM에 대한 scikit-learn의 기본 설정값의 결과가 $10,000$ 개 중 $9,435$ 의 결과이다. 
+SVM은 조정할 수 있는 매개 변수가 많으며 이 좋은 성능을 향상시키는 매개 변수를 탐색할 수 있다. 
+여기서 이 탐색을 상세히 다루지 않지만 더 알고싶다면 <a href="https://peekaboo-vision.blogspot.com/">안드레아스 뮐러</a>(Andreas Muller)의 <a href="https://peekaboo-vision.blogspot.com/2010/09/mnist-for-ever.html">블로그 글</a>을 한 번 보자.
+뮐로는 SVM 매개변수 최적화를 통해 성능을 $98.5%$의 정확도로 높였다. 
+즉, 잘 설정된 SVM은 70 개 중 한 개의 오차만 발생시킨다. 
+이는 엄청나다. 
+신경망은 더 좋은 성능을 낼 수 있을까? 
+</p>
 
-    <p>
-      사실 신경망은 더 좋은 성능을 낼 수 있다. 
-      현재 잘 설계된 신경망은 SVM을 포함해 MNIST를 푸는 다른 모든 기술의 성능을 뛰어넘었다. 
-      현재(2013)의 기록은 $10,000$개의 이미지중 $9,979$개의 이미지를 정확히 분류했다. 
-      이는 <a href>Li Wan</a>, <a href="https://www.matthewzeiler.com/">Matthew Zeiler</a>, Sixin Zhang, <a href="http://yann.lecun.com/">Yann LeCun</a>, <a href="https://cs.nyu.edu/~fergus/pmwiki/pmwiki.php">Rob Fergus</a>가 이룬 업적이다. 
-      이 책의 뒷 부분에서 그들이 사용한 기술을 살펴보겠다. 
-      그 수준에서 성능은 인간과 거의 동등하며 아래처럼 MNIST 이미지의 몇몇은 인간조차 확신을가지고 인식하기 어려우므로 인간보다 더 뛰어나다는 주장도 있다. 
+<p>
+사실 신경망은 더 좋은 성능을 낼 수 있다. 
+현재 잘 설계된 신경망은 SVM을 포함해 MNIST를 푸는 다른 모든 기술의 성능을 뛰어넘었다. 
+현재(2013)의 기록은 $10,000$개의 이미지중 $9,979$개의 이미지를 정확히 분류했다. 
+이는 <a href>Li Wan</a>, <a href="https://www.matthewzeiler.com/">Matthew Zeiler</a>, Sixin Zhang, <a href="http://yann.lecun.com/">Yann LeCun</a>, <a href="https://cs.nyu.edu/~fergus/pmwiki/pmwiki.php">Rob Fergus</a>가 이룬 업적이다. 
+이 책의 뒷 부분에서 그들이 사용한 기술을 살펴보겠다. 
+그 수준에서 성능은 인간과 거의 동등하며 아래처럼 MNIST 이미지의 몇몇은 인간조차 확신을가지고 인식하기 어려우므로 인간보다 더 뛰어나다는 주장도 있다. 
 
-      <br /><br />
-      <img class="contentimg" src="./images/chapter1/mnist_really_bad_images.png" alt="digits" width="500px">
-      <br /><br />
+<br /><br />
+<img class="contentimg" src="./images/chapter1/mnist_really_bad_images.png" alt="digits" width="500px">
+<br /><br />
 
-      위의 숫자는 분류하기에 어렵다. 
-      MNIST 데이터 셋 중 위와 같은 이미지를 신경망이 $10,000$ 개의 테스트 이미지중 $21$ 개를 제외하고 모두 정확히 분류할 수 있다는 것은 놀랍다. 
-      보통 프로그램을 작성할 때 MNIST 숫자 인식과 같은 복잡한 문제를 풀려면 아주 정교한 알고리즘이 필요할 것이라고 믿어왔다. 
-      방금 말한 Wan et al 논문의 신경망은 이 장에서 살펴본 알고리즘의 변형인 아주 간단한 알고리즘을 포함한다. 
-      모든 복잡도는 학습 데이터를 통해 자동으로 학습된다. 
-      어떤 면에서 우리의 결과와 조금더 정교한 논문에서의 결과의 교훈은 어떤 문제에 대한 다음과 같은 사실이다. 
-    </p>
+위의 숫자는 분류하기에 어렵다. 
+MNIST 데이터 셋 중 위와 같은 이미지를 신경망이 $10,000$ 개의 테스트 이미지중 $21$ 개를 제외하고 모두 정확히 분류할 수 있다는 것은 놀랍다. 
+보통 프로그램을 작성할 때 MNIST 숫자 인식과 같은 복잡한 문제를 풀려면 아주 정교한 알고리즘이 필요할 것이라고 믿어왔다. 
+방금 말한 Wan et al 논문의 신경망은 이 장에서 살펴본 알고리즘의 변형인 아주 간단한 알고리즘을 포함한다. 
+모든 복잡도는 학습 데이터를 통해 자동으로 학습된다. 
+어떤 면에서 우리의 결과와 조금더 정교한 논문에서의 결과의 교훈은 어떤 문제에 대한 다음과 같은 사실이다. 
+</p>
 
-    <p style="text-align: center">
-      복잡한 알고리즘 $\leq$ 간단한 학습 알고리즘 $+$ 좋은 학습 데이터 
-    </p>
+<p style="text-align: center">
+복잡한 알고리즘 $\leq$ 간단한 학습 알고리즘 $+$ 좋은 학습 데이터 
+</p>
 
-    <br />
-    <h2>딥러닝에 대하여</h2>
-    <hr>
+<br />
+<h2>딥러닝에 대하여</h2>
+<hr>
 
-    <p>
-      신경망이 좋은 성능을 내지만 이 성능은 한편으론 다소 이해하기 힘들다. 
-      신경망에서 가중치와 편향은 자동으로 찾는다. 
-      그리고 이것은 신경망이 어떻게 동작하는지 즉각적인 설명을 하지 못한다. 
-      신경망이 손글씨를 분류하는 원리를 이해하기 위한 방법이 있을까? 
-      그런 원리가 있다면 우리는 더 좋은 성능을 낼 수 있을까?
-    </p>
+<p>
+신경망이 좋은 성능을 내지만 이 성능은 한편으론 다소 이해하기 힘들다. 
+신경망에서 가중치와 편향은 자동으로 찾는다. 
+그리고 이것은 신경망이 어떻게 동작하는지 즉각적인 설명을 하지 못한다. 
+신경망이 손글씨를 분류하는 원리를 이해하기 위한 방법이 있을까? 
+그런 원리가 있다면 우리는 더 좋은 성능을 낼 수 있을까?
+</p>
 
-    <p>
-      문제를 더 분명히하기 위해 이제부터 수십년 동안 신경망이 인공지능(artificial intelligence, AI)로 이어진다고 가정하자. 
-      그렇게 똑똑한 신경망이 어떻게 동작하는지 이해할 수 있을까? 
-      가중치와 편향은 자동으로 학습되므로 우리가 이해하지 못해 신경망은 우리에게 불투명한 존재일 것이다. 
-      AI 연구의 초창기에 사람들은 AI를 만드는 노력이 지능 뒤에 숨겨진 원리를 이해하고 인간 두뇌의 기능을 이해하는데 도움이 될 것이라는 희망이 있었다. 
-      하지만 결과는 두뇌와 인공지능이 어떻게 동작하는지 이해하지 못한 채로 끝났다. 
-    </p>
+<p>
+문제를 더 분명히하기 위해 이제부터 수십년 동안 신경망이 인공지능(artificial intelligence, AI)로 이어진다고 가정하자. 
+그렇게 똑똑한 신경망이 어떻게 동작하는지 이해할 수 있을까? 
+가중치와 편향은 자동으로 학습되므로 우리가 이해하지 못해 신경망은 우리에게 불투명한 존재일 것이다. 
+AI 연구의 초창기에 사람들은 AI를 만드는 노력이 지능 뒤에 숨겨진 원리를 이해하고 인간 두뇌의 기능을 이해하는데 도움이 될 것이라는 희망이 있었다. 
+하지만 결과는 두뇌와 인공지능이 어떻게 동작하는지 이해하지 못한 채로 끝났다. 
+</p>
 
-    <p>
-      이 문제를 다루기 위해 증거를 가늠하는 수단으로 이 장의 앞부분에서 이야기 한 인공 뉴런의 해석으로 돌아가 보자. 
-      우리는 주어진 이미지가 사람의 얼굴인지 아닌지를 판별하고 싶다고 가정하자. 
-    
-      <br />
-      <a href="https://commons.wikimedia.org/wiki/File:Kangaroo_ST_03.JPG" ><img class="contentimg" src="http://neuralnetworksanddeeplearning.com/images/Kangaroo.JPG" alt="digits" height="180px" style="float:left; margin:10px"></a>
-      <a href ="https://commons.wikimedia.org/wiki/File:Albert_Einstein_at_the_age_of_three_(1882).jpg"><img class="contentimg" src="http://neuralnetworksanddeeplearning.com/images/Einstein_crop.jpg" alt="digits" height="180px" style="float:left; margin:10px"></a>
-      <a href="https://commons.wikimedia.org/wiki/File:The_Hubble_eXtreme_Deep_Field.jpg"><img class="contentimg" src="http://neuralnetworksanddeeplearning.com/images/hubble.jpg" alt="digits" height="180px" style="float:left; margin:10px"></a>
-      <br /><br />
-    </p>
+<p>
+이 문제를 다루기 위해 증거를 가늠하는 수단으로 이 장의 앞부분에서 이야기 한 인공 뉴런의 해석으로 돌아가 보자. 
+우리는 주어진 이미지가 사람의 얼굴인지 아닌지를 판별하고 싶다고 가정하자. 
 
-    <p style="clear:left">
-      손글씨 인식 문제를 풀었던 방법으로 이 문제를 풀 수 있다. 
-      신경망의 입력으로 이미지의 픽셀을 사용하고 신경망의 출력으로 하나의 뉴런을 사용해 "사람 얼굴이다", "사람 얼굴이 아니다"를 표시한다. 
-    </p>
+<br />
+<a href="https://commons.wikimedia.org/wiki/File:Kangaroo_ST_03.JPG" ><img class="contentimg" src="http://neuralnetworksanddeeplearning.com/images/Kangaroo.JPG" alt="digits" height="180px" style="float:left; margin:10px"></a>
+<a href ="https://commons.wikimedia.org/wiki/File:Albert_Einstein_at_the_age_of_three_(1882).jpg"><img class="contentimg" src="http://neuralnetworksanddeeplearning.com/images/Einstein_crop.jpg" alt="digits" height="180px" style="float:left; margin:10px"></a>
+<a href="https://commons.wikimedia.org/wiki/File:The_Hubble_eXtreme_Deep_Field.jpg"><img class="contentimg" src="http://neuralnetworksanddeeplearning.com/images/hubble.jpg" alt="digits" height="180px" style="float:left; margin:10px"></a>
+<br /><br />
+</p>
 
-    <p>
-      학습 알고리즘을 사용하지 않고 이 문제를 푼다고 가정해보자. 
-      대신 적절한 가중치와 편향을 선택하여 직접 신경망을 설계해볼 것이다. 
-      어떻게 할 수 있을까? 
-      신경망에 대한 생각을 잠시 접어두자. 
-      직접 해볼 수 있는 방법은 문제를 여러개의 문제로 분해하는 것이다. 
-      이미지의 왼쪽 위에 눈이 있나?
-      이미지 가운데 코가 있나? 
-      이미지 중간 아랫 부분에 입이 있나? 
-      윗 부분에는 머리카락이 있나? 
-    </p>
+<p style="clear:left">
+손글씨 인식 문제를 풀었던 방법으로 이 문제를 풀 수 있다. 
+신경망의 입력으로 이미지의 픽셀을 사용하고 신경망의 출력으로 하나의 뉴런을 사용해 "사람 얼굴이다", "사람 얼굴이 아니다"를 표시한다. 
+</p>
 
-    <p>
-      질문 중 몇 개에 대한 답이 "있다"이거나 "있는 것 같다"이면 이미지가 사람 얼굴이라고 결론 지을 수 있다. 
-      반대로 질문에 대한 답이 "없다"이면 이미지는 사람 얼굴이 아닐 것이다. 
-    </p>
+<p>
+학습 알고리즘을 사용하지 않고 이 문제를 푼다고 가정해보자. 
+대신 적절한 가중치와 편향을 선택하여 직접 신경망을 설계해볼 것이다. 
+어떻게 할 수 있을까? 
+신경망에 대한 생각을 잠시 접어두자. 
+직접 해볼 수 있는 방법은 문제를 여러개의 문제로 분해하는 것이다. 
+이미지의 왼쪽 위에 눈이 있나?
+이미지 가운데 코가 있나? 
+이미지 중간 아랫 부분에 입이 있나? 
+윗 부분에는 머리카락이 있나? 
+</p>
 
-    <p>
-      물론 이는 무식한 방법일 수 있으며 많은 결함이 있다. 
-      사람이 대머리일 수도 있으므로 머리카락이 없을 수 있기 때문이다. 
-      얼굴중 일부만 볼 수 있거나 얼굴 각도가 다른 경우 얼굴의 특징 중 일부분은 가려질 수 있다. 
-      하지만 이러한 방법은 신경망을 이용해서 하위 문제를 풀 수 있다면 얼굴 탐지를 위한 신경망을 하위 문제의 신경망 조합으로 만들 수 있다는 것을 보여준다. 
-      아래 가능한 구조가 나타나 있다. 
-      사각형은 하위 문제를 표시한다. 
-      얼굴 탐지 문제를 푸는 현실적인 방법은 아니다. 
-      하지만 신경망이 어떻게 동작하는지에 대한 직관을 키울 수 있다. 
-      다음은 신경망 구조이다. 
+<p>
+질문 중 몇 개에 대한 답이 "있다"이거나 "있는 것 같다"이면 이미지가 사람 얼굴이라고 결론 지을 수 있다. 
+반대로 질문에 대한 답이 "없다"이면 이미지는 사람 얼굴이 아닐 것이다. 
+</p>
 
-      <br /><br />
-      <img class="contentimg"  src="./images/chapter1/tikz14.png" alt="digits" width="600px">
-      <br /><br />
+<p>
+물론 이는 무식한 방법일 수 있으며 많은 결함이 있다. 
+사람이 대머리일 수도 있으므로 머리카락이 없을 수 있기 때문이다. 
+얼굴중 일부만 볼 수 있거나 얼굴 각도가 다른 경우 얼굴의 특징 중 일부분은 가려질 수 있다. 
+하지만 이러한 방법은 신경망을 이용해서 하위 문제를 풀 수 있다면 얼굴 탐지를 위한 신경망을 하위 문제의 신경망 조합으로 만들 수 있다는 것을 보여준다. 
+아래 가능한 구조가 나타나 있다. 
+사각형은 하위 문제를 표시한다. 
+얼굴 탐지 문제를 푸는 현실적인 방법은 아니다. 
+하지만 신경망이 어떻게 동작하는지에 대한 직관을 키울 수 있다. 
+다음은 신경망 구조이다. 
 
-      하위 신경망이 분해될 수도 있다. 
-      다음 질문 "왼쪽 위에 눈이 있는가?"을 생각해보자. 
-      이는 다음과 같은 물음으로 분해될 수 있다. 
-      "눈썹이 있는가?" 
-      "속눈썹이 있나?" 
-      "홍채가 있나?"와 같은 질문으로 분해된다. 
-      물론 이러한 질문은 위치에 대한 정보를 가지고 있어야 한다. 
-      "이미지의 왼쪽 위에 눈썹이 있으며 그 아래 홍채가 있나?" 
-      하지만 간단하게 생각해보자. 
-      "이미지의 왼쪽 위에 눈이 있나?"라는 질문에 대한 답을 하는 신경망은 다음과 같이 분해될 수 있다. 
+<br /><br />
+<img class="contentimg"  src="./images/chapter1/tikz14.png" alt="digits" width="600px">
+<br /><br />
 
-      <br /><br />
-      <img class="contentimg"  src="./images/chapter1/tikz15.png" alt="digits" width="600px">
-      <br /><br />
+하위 신경망이 분해될 수도 있다. 
+다음 질문 "왼쪽 위에 눈이 있는가?"을 생각해보자. 
+이는 다음과 같은 물음으로 분해될 수 있다. 
+"눈썹이 있는가?" 
+"속눈썹이 있나?" 
+"홍채가 있나?"와 같은 질문으로 분해된다. 
+물론 이러한 질문은 위치에 대한 정보를 가지고 있어야 한다. 
+"이미지의 왼쪽 위에 눈썹이 있으며 그 아래 홍채가 있나?" 
+하지만 간단하게 생각해보자. 
+"이미지의 왼쪽 위에 눈이 있나?"라는 질문에 대한 답을 하는 신경망은 다음과 같이 분해될 수 있다. 
 
-      이런 질문은 계속해서 더 많은 층으로 나눌 수 있다. 
-      궁극적으로 하위 신경망이 질문에 답하는 것은 매우 단순하여 하나의 픽셀 수준에서 쉽게 답할 수 있다. 
-      예를 들어 이 질문은 이미지의 어떤 부분에서 매우 단순한 모양의 존재 유무를 묻는 것이다. 
-      이미지의 픽셀에 연결한 하나의 뉴런이 이러한 질문에 답할 수 있다. 
-    </p>
+<br /><br />
+<img class="contentimg"  src="./images/chapter1/tikz15.png" alt="digits" width="600px">
+<br /><br />
 
-    <p>
-      이미지가 사람 얼굴을 보여주는가와 같은 복잡한 문제를 픽셀 수준에서 답할 수 있는 단순한 질문으로 분해하는 신경망이 최종 결과이다. 
-      이는 다층의 신경망을 통해 이루어진다. 
-      앞부분에 있는 층은 입력 이미지에 대한 단순하고 구체적인 질문에 답한다. 
-      뒤에 있는 층은 더 복잡하고 추상적인 개념에 대한 계층 구조를 형성한다. 
-      두 개 이상의 은닉층을 가지는 이러한 다층 구조의 신경망을 심층 신경망(deep neural network)라 한다. 
-    </p>
+이런 질문은 계속해서 더 많은 층으로 나눌 수 있다. 
+궁극적으로 하위 신경망이 질문에 답하는 것은 매우 단순하여 하나의 픽셀 수준에서 쉽게 답할 수 있다. 
+예를 들어 이 질문은 이미지의 어떤 부분에서 매우 단순한 모양의 존재 유무를 묻는 것이다. 
+이미지의 픽셀에 연결한 하나의 뉴런이 이러한 질문에 답할 수 있다. 
+</p>
 
-    <p>
-      물론 어떻게 재귀적으로 하위 문제로 분해하는지 설명하지 않았다. 
-      직접 신경망의 가중치와 편향을 설계하는 것은 실용적이지 않다. 
-      대신 신경망이 자동으로 가중치와 편향을 학습하도록 학습 알고리즘을 사용한다. 
-      즉 학습 데이터에서 개념의 계층 구조를 학습한다. 
-      1980년대와 90년대의 연구자들은 심층 신경망을 학습시키기 위해 확률적 경사 하강법과 역전파 알고리즘을 사용했다. 
-      하지만 몇몇 구조를 제외하고는 좋은 성과를 내지 못했다. 
-      신경망이 학습을 하지만 매우 느렸고 실제로 사용할 수 없을 정도로 느렸다. 
-    </p>
+<p>
+이미지가 사람 얼굴을 보여주는가와 같은 복잡한 문제를 픽셀 수준에서 답할 수 있는 단순한 질문으로 분해하는 신경망이 최종 결과이다. 
+이는 다층의 신경망을 통해 이루어진다. 
+앞부분에 있는 층은 입력 이미지에 대한 단순하고 구체적인 질문에 답한다. 
+뒤에 있는 층은 더 복잡하고 추상적인 개념에 대한 계층 구조를 형성한다. 
+두 개 이상의 은닉층을 가지는 이러한 다층 구조의 신경망을 심층 신경망(deep neural network)라 한다. 
+</p>
 
-    <p>
-      2006년 이후 심층 신경망을 학습시킬 수 있는 몇몇 기술들이 개발되었다. 
-      이 딥러닝 기술은 확률적 경사 하강 알고리즘과 역전파 알고리즘을 기반으로 하고 있지만 새로운 아이디어를 도입했다. 
-      이러한 기술을 통해 훨씬 더 크고 깊은 신경망을 학습시킬 수 있었다. 
-      현재 사람들은 일상적으로 5개에서 10개의 은닉층을 가지는 신경망을 훈련시킨다. 
-      그리고 단 하나의 은닉층을 가지는 얕은 신경망보다 심층 신경망의 성능이 많은 문제에서 성능이 훨씬 좋다. 
-      물론 심층 신경망이 개념에 대한 복잡한 계층 구조를 만들 수 있는 능력이 있기 때문이다. 
-      이는 전통적인 프로그래밍 언어가 모듈식 디자인과 아이디어를 이용해 복잡한 프로그램을 만들수 있었던 것과 비슷하다. 
-      심층 신경망과 얕은 신경망의 관계는 함수 호출을 할 수 있는 프로그래밍 언어와 함수 호출을 할 수 없는 언어의 관계와 닮아 있다. 
-      전통적인 프로그래밍에서의 추상화와 신경망에서의 추상하는 다르지만 중요한 것은 똑같다. 
-    </p>
-  </div>
+<p>
+물론 어떻게 재귀적으로 하위 문제로 분해하는지 설명하지 않았다. 
+직접 신경망의 가중치와 편향을 설계하는 것은 실용적이지 않다. 
+대신 신경망이 자동으로 가중치와 편향을 학습하도록 학습 알고리즘을 사용한다. 
+즉 학습 데이터에서 개념의 계층 구조를 학습한다. 
+1980년대와 90년대의 연구자들은 심층 신경망을 학습시키기 위해 확률적 경사 하강법과 역전파 알고리즘을 사용했다. 
+하지만 몇몇 구조를 제외하고는 좋은 성과를 내지 못했다. 
+신경망이 학습을 하지만 매우 느렸고 실제로 사용할 수 없을 정도로 느렸다. 
+</p>
+
+<p>
+2006년 이후 심층 신경망을 학습시킬 수 있는 몇몇 기술들이 개발되었다. 
+이 딥러닝 기술은 확률적 경사 하강 알고리즘과 역전파 알고리즘을 기반으로 하고 있지만 새로운 아이디어를 도입했다. 
+이러한 기술을 통해 훨씬 더 크고 깊은 신경망을 학습시킬 수 있었다. 
+현재 사람들은 일상적으로 5개에서 10개의 은닉층을 가지는 신경망을 훈련시킨다. 
+그리고 단 하나의 은닉층을 가지는 얕은 신경망보다 심층 신경망의 성능이 많은 문제에서 성능이 훨씬 좋다. 
+물론 심층 신경망이 개념에 대한 복잡한 계층 구조를 만들 수 있는 능력이 있기 때문이다. 
+이는 전통적인 프로그래밍 언어가 모듈식 디자인과 아이디어를 이용해 복잡한 프로그램을 만들수 있었던 것과 비슷하다. 
+심층 신경망과 얕은 신경망의 관계는 함수 호출을 할 수 있는 프로그래밍 언어와 함수 호출을 할 수 없는 언어의 관계와 닮아 있다. 
+전통적인 프로그래밍에서의 추상화와 신경망에서의 추상하는 다르지만 중요한 것은 똑같다. 
+</p>
+</div>
 </div>
 
 <div class="rightcolumn">
   
-  <div class="card">
-    <h2>저자</h2>
-    <h3><a href="http://michaelnielsen.org/">Michael A. Nielsen</a></h3>
-  </div>
+<div class="card">
+<h2>저자</h2>
+<h3><a href="http://michaelnielsen.org/">Michael A. Nielsen</a></h3>
+</div>
 
-  <div class="card">
-      <h2>역자</h2>
-      <h3>김시현</h3>
-      <p><a href="https://github.com/sihyeon-kim"><img src="images/GitHub-Mark-32px.png" alt="Github" width="17" height="17">&nbsp;sihyeon-kim</a></p>
-      <p><a href="mailto:sihyeonkim0923@gmail.com">&nbsp;sihyeonkim0923@gmail.com</a></p>
-  </div>
+<div class="card">
+<h2>역자</h2>
+<h3>김시현</h3>
+<p><a href="https://github.com/sihyeon-kim"><img src="images/GitHub-Mark-32px.png" alt="Github" width="17" height="17">&nbsp;sihyeon-kim</a></p>
+<p><a href="mailto:sihyeonkim0923@gmail.com">&nbsp;sihyeonkim0923@gmail.com</a></p>
+</div>
 
-  <div class="card">
-      <h2>참고 자료</h2>
-      <p><a href="https://twitter.com/michael_nielsen">저자(Michael A. Nielsen) 트위터</a></p>
-      <p><a href="faq.html">자주 묻는 질문</a></p>
-      <p>
-        <a href="https://github.com/mnielsen/neural-networks-and-deep-learning">
-        저자(Michael A. Nielsen) 코드 저장소</a>
-      </p>
-      <p><a href="http://www.deeplearningbook.org/">Deep Learning</a>, book by Ian Goodfellow, Yoshua Bengio, and Aaron Courville</p>
-      <p><a href="http://cognitivemedium.com/">cognitivemedium.com</a></p>
-      <p>한글 글꼴(korean fonts): <a href="https://help.naver.com/support/contents/contents.help?serviceNo=1074&categoryNo=3497">나눔 글꼴</a></p>
-  </div>
+<div class="card">
+<h2>참고 자료</h2>
+<p><a href="https://twitter.com/michael_nielsen">저자(Michael A. Nielsen) 트위터</a></p>
+<p><a href="faq.html">자주 묻는 질문</a></p>
+<p>
+  <a href="https://github.com/mnielsen/neural-networks-and-deep-learning">
+  저자(Michael A. Nielsen) 코드 저장소</a>
+</p>
+<p><a href="http://www.deeplearningbook.org/">Deep Learning</a>, book by Ian Goodfellow, Yoshua Bengio, and Aaron Courville</p>
+<p><a href="http://cognitivemedium.com/">cognitivemedium.com</a></p>
+<p>한글 글꼴(korean fonts): <a href="https://help.naver.com/support/contents/contents.help?serviceNo=1074&categoryNo=3497">나눔 글꼴</a></p>
+</div>
 </div>
 </div>
     
@@ -2263,16 +2204,19 @@ commercial use, please <a href="mailto:mn@michaelnielsen.org">contact me(Michael
 <p>
 학업적으로 이용 시 다음과 같이 인용해 주세요: Michael A. Nielsen, "Neural Networks and
 Deep Learning", Determination Press, 2015
-<br/><br/>
+<br/>
+
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
-  <img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" />
+<img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" />
 </a>
-<br />이 저작물은 
+
+<br />
+이 저작물은 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">크리에이티브 커먼즈 저작자표시-비영리 3.0 Unported 라이선스</a>
 에 따라 이용할 수 있습니다.
-<br /><br />
+<br />
 상업적 이용을 원하면, <a href="mailto:mn@michaelnielsen.org">저자(Michael A. Nielsen)에게 연락을 주세요.</a>
-<br /><br />
+<br />
 마지막 깁고 더함: 19/06/21
 </p>
 </div>
