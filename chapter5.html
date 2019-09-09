@@ -19,6 +19,9 @@
 <!-- jQuery -->
 <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
+<!-- google code-prettify -->
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>  
+
 </head>
     
 <body>
@@ -194,7 +197,98 @@ with piece-wise linear activations에서 증명되었다.<br>
 </p>
 
 <p>
-이 질문에 답하기 위해, 먼저 단 하나의 은닉층으로 구성된 네트워크에 대해 살펴보자. 
+이 질문에 답하기 위해, 먼저 단 하나의 은닉층으로 구성된 네트워크에 대해 살펴보자.  
+늘 그렇듯, MNIST 숫자 분류 문제를 이용해 학습에 대한 실험을 해볼 것이다.<span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+앞에서 MNIST 문제를 도입했다.
+</span></span>
+</p>
+
+<p>
+원한다면, 컴퓨터에서 직접 네트워크를 학습시킬 수 있다. 
+물론, 그냥 읽기만 해도 상관없다. 
+대신 직접 해보고 싶다면, 파이썬 2.7, Numpy, 코드 복사본이 필요하며, 다음 명령어를 입력하여 저장소를 클로닝<sup>cloning</sup>해 얻을 수 있다.
+</p>
+
+<pre class="prettyprint"><code class="language-python">git clone https://github.com/mnielsen/neural-networks-and-deep-learning.git</code></pre>
+
+<p>
+git을 사용하지 않는다면, <a href="https://github.com/mnielsen/neural-networks-and-deep-learning/archive/master.zip">여기서</a> 데이터와 코드를 다운로드할 수 있다.
+<code>src</code> 하위디렉토리<sup>subdirectory</sup>로 바꿔야할 필요는 있다.
+</p>
+
+<p>
+그런 다음, 파이썬 쉘에서 MNIST 데이터를 로드한다: 
+</p>
+
+<pre class="prettyprint"><code class="language-python">>>> import mnist_loader
+>>> training_data, validation_data, test_data = \
+... mnist_loader.load_data_wrapper()</code></pre>
+
+<p>
+그 다음, 네트워크를 구성한다:
+</p>
+
+<pre class="prettyprint"><code class="language-python">>>> import network2
+>>> net = network2.Network([784, 30, 10])</code></pre>
+
+<p>
+이 네트워크는 입력층에 784개의 뉴런이 있으며, 이는 상응하는 $28 \times 28 = 784$개의 입력 이미지 픽셀이다.
+그리고 30개의 은닉 뉴런과, MNIST 숫자 ('0', '1', '2', $\ldots$, '9')에 대한 가능한 10개의 분류에 대응하는 출력 뉴런 10개를 사용한다.
+</p>
+
+<p>
+미니 배치는 10, 학습률 $\eta = 0.1$, 정규화 파라미터<sup>regularization parameter</sup> $\lambda = 5.0$으로 하여, 30 에폭<sup>epoch</sup>동안 네트워크를 학습시켜보자. 
+학습을 시키면서, <code>validation_data</code><span class="tooltip"><b><sup>*</sup></b><span class="tooltiptext">
+컴퓨터의 속도에 따라, 네트워크를 학습시키는 데 <br>
+몇 분이 걸릴수도 있다. <br>
+그러므로 코드가 다 실행될 때까지 기다리지말고, <br>
+책을 계속 읽어도 된다.
+</span></span>에 대한 분류 정확도를 모니터할 것이다.
+</p>
+
+<pre class="prettyprint"><code class="language-python">>>> net.SGD(training_data, 30, 10, 0.1, lmbda=5.0, 
+... evaluation_data=validation_data, monitor_evaluation_accuracy=True)</code></pre>
+
+<p>
+96.48%의 분류 정확도가 나온다.(이는 실행할 때마다 약간씩 달라질 수 있다)
+비슷한 구성으로 한 이전의 결과와 비교해보자. 
+</p>
+
+<p>
+이제, 마찬가지로 30개의 뉴런을 가지는 은닉층을 더 추가해보자. 
+그리고 같은 하이퍼파라미터로 학습을 시켜보자:
+</p>
+
+<pre class="prettyprint"><code class="language-python">>>> net = network2.Network([784, 30, 30, 10])
+>>> net.SGD(training_data, 30, 10, 0.1, lmbda=5.0, 
+... evaluation_data=validation_data, monitor_evaluation_accuracy=True)</code></pre>
+
+<p>
+이는 96.90%로 향상된 분류 정확도를 낸다. 
+이는 조금 더 깊은 네트워크가 도움이 된다는 좋은 결과이다. 
+다시 한번 30개의 뉴런으로 구성된 은닉층을 추가해보자.
+</p>
+
+<pre class="prettyprint"><code class="language-python">>>> net = network2.Network([784, 30, 30, 30, 10])
+>>> net.SGD(training_data, 30, 10, 0.1, lmbda=5.0, 
+... evaluation_data=validation_data, monitor_evaluation_accuracy=True)</code></pre>
+
+<p>
+이번에는 전혀 도움이 되지 않는다. 
+오히려 결과는 96.57%로 떨어지며, 이는 원래의 얕은 네트워크와 비슷한 결과이다. 
+그리고 하나의 은닉층을 더 추가한다고 가정해보자.
+</p>
+
+<pre class="prettyprint"><code class="language-python">>>> net = network2.Network([784, 30, 30, 30, 30, 10])
+>>> net.SGD(training_data, 30, 10, 0.1, lmbda=5.0, 
+... evaluation_data=validation_data, monitor_evaluation_accuracy=True)</code></pre>
+
+<p>
+분류 정확도는 다시 떨어져, 96.53%가 된다. 
+엄청나게 많이 떨어진 것은 아니지만, 그렇다고 좋은 결과도 아니다.
+</p>
+
+<p>
 
 </p>
 
