@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head lang="ko">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>뉴럴 네트워크와 딥러닝</title>
+
+<link href="assets/style.css" rel="stylesheet">
+
+<!-- mathjax -->
+<script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+</script>
+
+<!-- jQuery -->
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+</head>
+    
+<body>
+  
+<div class="header">
+<h1><a href="index.html">뉴럴 네트워크와 딥러닝</a></h1>
+<h3>Original Edition: <a href="http://neuralnetworksanddeeplearning.com/">Neural Networks and Deep Learning</a> by <a href="http://michaelnielsen.org/">Michael A. Nielsen</a></h3>
+</div>
+
+<div class="topnav">
+<a href="#">tmpLink</a>
+<a href="#">tmpLink</a>
+<a href="#">tmpLink</a>
+<a href="https://github.com/sihyeon-kim/neural-networks-and-deep-learning-korean" style="float:right">
+<img src="images/GitHub-Mark-32px.png" width="19" height="19">
+&nbsp;Edit on translator's Github
+</a>
+</div>
+
+<div class="row">
+
+<div class="sidebar">
+<div class="card">
+<a href="index.html">뉴럴 네트워크와 딥러닝</a>
+<a href="aboutBook.html">&nbsp;&nbsp;&nbsp;&nbsp;이 책에 대하여</a>
+<a href="onExercises.html">&nbsp;&nbsp;&nbsp;&nbsp;연습문제에 대하여</a>
+<a href="chapter1.html">1장 뉴럴 네트워크를 이용한 손글씨 숫자 인식</a>
+<a href="chapter2.html">2장 역전파 알고리즘 동작 방법</a>
+<a href="chapter3.html">3장 뉴럴 네트워크 학습 방법 개선</a>
+<a href="chapter4.html">4장 뉴럴 네트워크 범용성 증명</a>
+<a href="chapter5.html">5장 딥뉴럴 네트워크 학습의 어려움</a>
+<a class="active" href="chapter6.html">6장 딥러닝</a>
+<a href="appendix.html">부록: 지능을 위한 단순한 알고리즘</a>
+<a href="acknowledgements.html">감사의 말</a>
+<a href="faq.html">질문과 답변</a>
+</div>
+</div>
+
+<div class="leftcolumn">
+<div class="card">
+<h1>6장</h1>
+<h1>딥 러닝</h1>
+<hr>
+
+<p>
+5장에서 얕은 뉴럴 네트워크<sup>shallow neural network</sup>보다 딥 뉴럴 네트워크<sup>deep neural network</sup>를 학습시키는 것이 어렵다고 배웠다.
+</p>
+</div>
+</div>
+
+<div class="rightcolumn">
+  
+<div class="card">
+<h2>저자</h2>
+<h3><a href="http://michaelnielsen.org/">Michael A. Nielsen</a></h3>
+</div>
+
+<div class="card">
+<h2>역자</h2>
+<h3><a href="https://sihyeon-kim.github.io/about/">김시현</a></h3>
+<p><a href="https://github.com/sihyeon-kim"><img src="images/GitHub-Mark-32px.png" alt="Github" width="17" height="17">&nbsp;sihyeon-kim</a></p>
+<p><a href="mailto:sihyeonkim0923@gmail.com">&nbsp;sihyeonkim0923@gmail.com</a></p>
+</div>
+
+<div class="card">
+<h2>참고 자료</h2>
+<p><a href="https://twitter.com/michael_nielsen">저자(Michael A. Nielsen) 트위터</a></p>
+<p><a href="faq.html">자주 묻는 질문</a></p>
+<p>
+<a href="https://github.com/mnielsen/neural-networks-and-deep-learning">
+저자(Michael A. Nielsen) 코드 저장소</a>
+</p>
+<p><a href="http://www.deeplearningbook.org/">Deep Learning</a>, book by Ian Goodfellow, Yoshua Bengio, and Aaron Courville</p>
+<p><a href="http://cognitivemedium.com/">cognitivemedium.com</a></p>
+</div>
+
+<div class="card">
+<h2>번역본 참고 자료</h2>
+<p>한글 글꼴(korean fonts): <a href="https://help.naver.com/support/contents/contents.help?serviceNo=1074&categoryNo=3497">나눔 글꼴</a></p>
+</div>
+</div>
+</div>
+    
+<div class="footer">
+
+<p> 
+In academic work,
+please cite this book as: Michael A. Nielsen, "Neural Networks and
+Deep Learning", Determination Press, 2015
+
+<br/>
+<br/>
+
+This work is licensed under a 
+<a rel="license"  href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_GB">
+Creative Commons Attribution-NonCommercial 3.0 Unported License
+</a>.  This means you're free to copy, share, and
+build on this book, but not to sell it.  If you're interested in
+commercial use, please <a href="mailto:mn@michaelnielsen.org">contact me(Michael A. Nielsen)</a>.
+<br>
+<br>
+Last update: Tue Jun 11 16:58:53 2019
+</p>
+
+<br/>
+
+<p>
+학업적으로 이용 시 다음과 같이 인용해 주세요: Michael A. Nielsen, "Neural Networks and
+Deep Learning", Determination Press, 2015
+<br/>
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+<img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/3.0/88x31.png" />
+</a>
+
+<br />
+이 저작물은 
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">크리에이티브 커먼즈 저작자표시-비영리 3.0 Unported 라이선스</a>
+에 따라 이용할 수 있습니다.
+<br />
+상업적 이용을 원하면, <a href="mailto:mn@michaelnielsen.org">저자(Michael A. Nielsen)에게 연락을 주세요.</a>
+<br />
+</p>
+</div>
+
+</body>
+
+</html>
