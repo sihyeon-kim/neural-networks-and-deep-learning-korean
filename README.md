@@ -18,7 +18,7 @@ And I wrote a translation in `html` for interactive 'JavaScript' elements.
 - Chapter 6: Deep learning (*Not yet*)  
 
 # Translator
-- [sihyeon-kim](https://github.com/sihyeon-kim)  
+- Sihyeon Kim / [@sihyeon-kim](https://github.com/sihyeon-kim)  
 
 # Copyright
 This work is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License. This means you're free to copy, share, and build on this book, but not to sell it.  
