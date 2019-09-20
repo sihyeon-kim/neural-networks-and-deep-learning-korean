@@ -7,6 +7,8 @@ I translated the book, following author's comments in [FAQ page](http://neuralne
 
 And I wrote a translation in `html` for interactive `JavaScript` elements.  
 
+- The translation are available on [the website]().
+
 # Contents (WIP)
 - Chapter 1: Using neural nets to recognize handwritten digits (*draft done*)  
 - Chapter 2: How the backpropagation algorithms works (*draft done*)  
