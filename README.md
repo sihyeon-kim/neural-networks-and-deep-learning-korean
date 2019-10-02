@@ -9,7 +9,7 @@ And I wrote a translation in `html` for interactive `JavaScript` elements (*but 
 
 - The translation are available on [the website](https://sihyeon-kim.github.io/neural-networks-and-deep-learning-korean/index.html).
 
-# Contents (WIP)
+# Contents
 - Chapter 1: Using neural nets to recognize handwritten digits (*draft done*)  
 - Chapter 2: How the backpropagation algorithms works (*draft done*)  
 - Chapter 3: Improving the way neural networks learn (*rough draft done*)  
