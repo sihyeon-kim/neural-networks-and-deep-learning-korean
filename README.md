@@ -7,7 +7,7 @@ I translated the book, following author's comments in [FAQ page](http://neuralne
 
 And I wrote a translation in `html` for interactive `JavaScript` elements (*but currently incomplete*).  
 
-- The translation are available on [the website]().
+- The translation are available on [the website](https://sihyeon-kim.github.io/neural-networks-and-deep-learning-korean/index.html).
 
 # Contents (WIP)
 - Chapter 1: Using neural nets to recognize handwritten digits (*draft done*)  
